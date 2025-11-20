@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="SVGRoot"
+   sodipodi:docname="favicon.svg"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview239"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="23.632548"
+     inkscape:cx="34.274764"
+     inkscape:cy="14.767769"
+     inkscape:window-width="2560"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="SVGRoot">
+    <inkscape:grid
+       type="xygrid"
+       id="grid245" />
+  </sodipodi:namedview>
+  <defs
+     id="defs234">
+    <clipPath
+       id="presentation_clip_path"
+       clipPathUnits="userSpaceOnUse">
+      <rect
+         x="0"
+         y="0"
+         width="25400"
+         height="25400"
+         id="rect2" />
+    </clipPath>
+  </defs>
+  <g
+     class="SlideGroup"
+     id="g117"
+     transform="matrix(0.00525354,0,0,0.00525354,-26.745044,-46.415898)">
+    <g
+       id="g115">
+      <g
+         id="container-id1">
+        <g
+           id="id1"
+           class="Slide"
+           clip-path="url(#presentation_clip_path)">
+          <g
+             class="Page"
+             id="g111">
+            <g
+               class="Group"
+               id="g109">
+              <g
+                 class="Group"
+                 id="g100">
+                <g
+                   class="com.sun.star.drawing.ClosedBezierShape"
+                   id="g70">
+                  <g
+                     id="id5">
+                    <rect
+                       class="BoundingBox"
+                       stroke="none"
+                       fill="none"
+                       x="5951"
+                       y="10715"
+                       width="991"
+                       height="3287"
+                       id="rect65" />
+                    <path
+                       fill="#006cb2"
+                       stroke="none"
+                       d="m 6465,13551 121,174 c 115,150 296,224 355,276 -255,-7 -557,-191 -694,-335 -159,-168 -280,-413 -296,-715 l 1,-2046 c 61,-31 125,-72 179,-100 33,-18 52,-29 91,-53 74,-43 62,-40 85,-32 31,74 10,1290 10,1488 0,370 -55,1126 148,1343 z"
+                       id="path67" />
+                  </g>
+                </g>
+                <g
+                   class="com.sun.star.drawing.ClosedBezierShape"
+                   id="g77">
+                  <g
+                     id="id6">
+                    <rect
+                       class="BoundingBox"
+                       stroke="none"
+                       fill="none"
+                       x="6569"
+                       y="11133"
+                       width="983"
+                       height="2803"
+                       id="rect72" />
+                    <path
+                       fill="#006cb2"
+                       stroke="none"
+                       d="m 6876,13733 v 0 c -157,-120 -230,-292 -257,-483 -62,-479 -62,-1546 -21,-1909 l 376,-208 c -3,562 0,1127 0,1690 0,334 12,454 148,697 185,331 372,351 429,413 -183,11 -498,-59 -675,-200 z"
+                       id="path74" />
+                  </g>
+                </g>
+                <g
+                   class="com.sun.star.drawing.ClosedBezierShape"
+                   id="g84">
+                  <g
+                     id="id7">
+                    <rect
+                       class="BoundingBox"
+                       stroke="none"
+                       fill="none"
+                       x="7222"
+                       y="11524"
+                       width="693"
+                       height="2236"
+                       id="rect79" />
+                    <path
+                       fill="#006cb2"
+                       stroke="none"
+                       d="m 7914,13758 c -389,20 -621,-321 -676,-680 -18,-128 -24,-1295 0,-1385 82,-43 306,-162 368,-169 22,549 -70,1425 70,1842 74,215 126,246 238,392 z"
+                       id="path81" />
+                  </g>
+                </g>
+                <g
+                   class="com.sun.star.drawing.ClosedBezierShape"
+                   id="g91">
+                  <g
+                     id="id8">
+                    <rect
+                       class="BoundingBox"
+                       stroke="none"
+                       fill="none"
+                       x="6639"
+                       y="10495"
+                       width="3690"
+                       height="4279"
+                       id="rect86" />
+                    <path
+                       fill="#003a68"
+                       stroke="none"
+                       d="m 9060,10908 c -63,63 -118,137 -164,222 -95,179 -144,390 -144,635 0,547 75,894 -127,1398 -143,352 -420,647 -725,829 -322,192 -709,277 -1095,231 -47,-5 -129,-24 -166,-24 19,21 38,37 62,57 23,19 49,41 74,60 891,679 2121,587 2904,-189 333,-331 627,-855 644,-1492 9,-351 1,-714 1,-1067 0,-357 2,-713 0,-1069 -189,-22 -610,44 -808,122 -39,15 -68,27 -107,45 -98,45 -279,172 -349,242 z"
+                       id="path88" />
+                  </g>
+                </g>
+                <g
+                   class="com.sun.star.drawing.ClosedBezierShape"
+                   id="g98">
+                  <g
+                     id="id9">
+                    <rect
+                       class="BoundingBox"
+                       stroke="none"
+                       fill="none"
+                       x="8924"
+                       y="9019"
+                       width="1375"
+                       height="1374"
+                       id="rect93" />
+                    <path
+                       fill="#006cb2"
+                       stroke="none"
+                       d="m 9611,9019 c 379,0 686,307 686,687 0,379 -307,686 -686,686 -380,0 -687,-307 -687,-686 0,-380 307,-687 687,-687 z"
+                       id="path95" />
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

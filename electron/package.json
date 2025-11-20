@@ -1,0 +1,63 @@
+{
+  "name": "restaurant-pos-desktop",
+  "productName": "Restaurant POS",
+  "version": "1.0.1",
+  "description": "Restaurant POS - offline desktop point-of-sale",
+  "author": "Your Name <you@example.com>",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "^26.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.5.0",
+    "fs-extra": "^11.1.1"
+  },
+  "build": {
+    "appId": "com.yourcompany.restaurantpos",
+    "publish": [],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "runAfterFinish": true
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "../backend/**"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../runtime",
+        "to": "runtime",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asarUnpack": [
+      "backend/**"
+    ],
+    "directories": {
+      "output": "../build"
+    }
+  }
+}

@@ -1,0 +1,149 @@
+/* POS Custom Styles */
+
+:root {
+    --primary: #1a365d;
+    --primary-light: #2c5282;
+    --accent: #d69e2e;
+    --accent-hover: #b7791f;
+    --text: #2d3748;
+    --text-light: #718096;
+    --bg: #f7fafc;
+    --card-bg: rgba(255, 255, 255, 0.98);
+    --input-bg: #edf2f7;
+    --border-color: #d1d5db;
+    --focus-ring: 199, 210, 254;
+    --error: #ef4444;
+}
+
+/* Base Form Inputs */
+select, 
+input[type="text"],
+input[type="search"],
+input[type="number"],
+textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--text);
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Focus States */
+select:focus,
+input:focus,
+textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--primary);
+}
+
+/* Hover States */
+select:hover:not(:focus),
+input:hover:not(:focus),
+textarea:hover:not(:focus) {
+    border-color: #9ca3af;
+}
+
+/* Select Dropdown Styling */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+/* Search Container */
+.search-container {
+    position: relative;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.search-container svg {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 1.25rem;
+    width: 1.25rem;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.search-container input[type="search"] {
+    padding-left: 2.5rem;
+    padding-right: 1rem;
+}
+
+/* Category Buttons */
+.category-btn {
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Disabled State */
+select:disabled,
+input:disabled,
+textarea:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Error State */
+input.error,
+select.error,
+textarea.error {
+    border-color: var(--error);
+}
+
+input.error:focus,
+select.error:focus,
+textarea.error:focus {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (min-width: 1024px) {
+    .search-container {
+        width: 24rem; /* lg:w-96 */
+    }
+}
+
+@media (max-width: 640px) {
+    .search-container {
+        width: 100%;
+    }
+    
+    .category-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Table Status Colors */
+.available {
+    color: #059669; /* Green for available tables */
+}
+
+.occupied {
+    color: #d97706; /* Amber for occupied tables */
+}
+
+.reserved {
+    color: #7c3aed; /* Purple for reserved tables */
+}
