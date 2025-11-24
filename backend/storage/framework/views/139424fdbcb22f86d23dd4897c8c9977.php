@@ -8,7 +8,8 @@
             <p class="text-gray-600">Order #<?php echo e($bill->order->order_number); ?></p>
         </div>
         <div class="flex space-x-2">
-            <a href="<?php echo e(route('bills.print', $bill)); ?>" target="_blank"
+            <a href="javascript:void(0)" 
+               onclick="if(window.electronAPI) { window.electronAPI.openExternal('<?php echo e(URL::signedRoute('bills.print', $bill)); ?>'); } else { window.open('<?php echo e(URL::signedRoute('bills.print', $bill)); ?>', '_blank'); }"
                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                 Print
             </a>
@@ -290,4 +291,4 @@
 </div>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/bills/show.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\restaurant-pos-desktop\backend\resources\views\bills\show.blade.php ENDPATH**/ ?>

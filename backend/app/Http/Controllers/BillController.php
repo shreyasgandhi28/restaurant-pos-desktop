@@ -224,11 +224,10 @@ class BillController extends Controller
 
         return Pdf::loadView('bills.pdf', $data)
             ->setPaper([0, 0, 226.77, 841.89], 'portrait')
-            ->setOption('defaultFont', 'Noto Sans Devanagari')
-            ->setOption('encoding', 'UTF-8')
             ->setOption('isHtml5ParserEnabled', true)
             ->setOption('isPhpEnabled', true)
             ->setOption('isRemoteEnabled', true)
+            ->setOption('defaultFont', 'Noto Sans Devanagari')
             ->setOption('fontDir', storage_path('fonts'))
             ->setOption('fontCache', storage_path('fonts'))
             ->setOption('defaultMediaType', 'print')

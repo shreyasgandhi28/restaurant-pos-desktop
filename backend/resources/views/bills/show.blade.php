@@ -10,7 +10,8 @@
             <p class="text-gray-600">Order #{{ $bill->order->order_number }}</p>
         </div>
         <div class="flex space-x-2">
-            <a href="{{ route('bills.print', $bill) }}" target="_blank"
+            <a href="javascript:void(0)" 
+               onclick="if(window.electronAPI) { window.electronAPI.openExternal('{{ URL::signedRoute('bills.print', $bill) }}'); } else { window.open('{{ URL::signedRoute('bills.print', $bill) }}', '_blank'); }"
                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                 Print
             </a>
