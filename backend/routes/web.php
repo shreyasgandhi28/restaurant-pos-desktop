@@ -21,10 +21,14 @@ Route::get('/', function () {
     }
 });
 
-// Test route to verify server is working
 Route::get('/test', function () {
     return response('Server is working!', 200);
 });
+
+// Public signed route for printing bills
+Route::get('bills/{bill}/print', [BillController::class, 'print'])
+    ->name('bills.print')
+    ->middleware('signed');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -45,7 +49,7 @@ Route::middleware('auth')->group(function () {
     
     // Bills
     Route::resource('bills', BillController::class);
-    Route::get('bills/{bill}/print', [BillController::class, 'print'])->name('bills.print');
+    // Route::get('bills/{bill}/print', [BillController::class, 'print'])->name('bills.print'); // Moved outside auth
     Route::get('bills/{bill}/preview', [BillController::class, 'preview'])->name('bills.preview');
     Route::get('bills/{bill}/download', [BillController::class, 'download'])->name('bills.download');
     

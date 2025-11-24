@@ -1,5 +1,5 @@
 // main.js - robust first-run initializer
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
 const { spawnSync, spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs-extra');
@@ -157,10 +157,10 @@ async function firstRunInit() {
 
   // Remove cached config / routes / views so Laravel re-reads .env
   const bootstrapCacheDir = path.join(runtimeBackend, 'bootstrap', 'cache');
-  try { await fs.remove(path.join(bootstrapCacheDir, 'config.php')); } catch (e) {}
-  try { await fs.remove(path.join(bootstrapCacheDir, 'routes-v7.php')); } catch (e) {}
-  try { await fs.remove(path.join(bootstrapCacheDir, 'packages.php')); } catch (e) {}
-  try { await fs.remove(path.join(bootstrapCacheDir, 'services.php')); } catch (e) {}
+  try { await fs.remove(path.join(bootstrapCacheDir, 'config.php')); } catch (e) { }
+  try { await fs.remove(path.join(bootstrapCacheDir, 'routes-v7.php')); } catch (e) { }
+  try { await fs.remove(path.join(bootstrapCacheDir, 'packages.php')); } catch (e) { }
+  try { await fs.remove(path.join(bootstrapCacheDir, 'services.php')); } catch (e) { }
 
   // Ensure APP_KEY exists: try artisan key:generate, else create random base64 key
   let hasAppKey = /APP_KEY=/.test(envText);
@@ -184,8 +184,8 @@ async function firstRunInit() {
   }
 
   // Attempt to clear config and views (best-effort)
-  try { runPhpArtisan(['config:clear'], runtimeBackend); } catch(e) {}
-  try { runPhpArtisan(['view:clear'], runtimeBackend); } catch(e) {}
+  try { runPhpArtisan(['config:clear'], runtimeBackend); } catch (e) { }
+  try { runPhpArtisan(['view:clear'], runtimeBackend); } catch (e) { }
 
   // If DB file is empty, try to run migrations (best-effort)
   try {
@@ -231,12 +231,19 @@ function createWindow() {
     height: 820,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
   mainWindow.loadURL('http://127.0.0.1:8000/');
 }
+
+// IPC handler to open URLs in default browser
+ipcMain.on('open-external', (event, url) => {
+  shell.openExternal(url);
+});
+
 
 app.whenReady().then(async () => {
   try {

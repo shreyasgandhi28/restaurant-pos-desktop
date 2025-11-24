@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Bill #{{ $bill->bill_number }}</title>
+    <title>Bill #<?php echo e($bill->bill_number); ?></title>
     <style>
         @page {
             size: 80mm 297mm; /* Standard A4 height to prevent cutting */
@@ -14,13 +14,13 @@
             font-family: 'Noto Sans Devanagari';
             font-style: normal;
             font-weight: normal;
-            src: url('{{ storage_path('fonts/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
+            src: url('<?php echo e(storage_path('fonts/NotoSansDevanagari-Regular.ttf')); ?>') format('truetype');
         }
         @font-face {
             font-family: 'Noto Sans Devanagari';
             font-style: normal;
             font-weight: bold;
-            src: url('{{ storage_path('fonts/NotoSansDevanagari-Bold.ttf') }}') format('truetype');
+            src: url('<?php echo e(storage_path('fonts/NotoSansDevanagari-Bold.ttf')); ?>') format('truetype');
         }
         
         * {
@@ -187,6 +187,7 @@
     </style>
 </head>
 <body>
-    @include('bills.partials.receipt')
+    <?php echo $__env->make('bills.partials.receipt', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 </body>
 </html>
+<?php /**PATH D:\restaurant-pos-desktop\backend\resources\views\bills\pdf.blade.php ENDPATH**/ ?>

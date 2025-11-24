@@ -1,46 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill #{{ $bill->bill_number }}</title>
     <style>
-        @page {
-            size: 80mm 297mm; /* Standard A4 height to prevent cutting */
-            margin: 0;
-            padding: 0;
-        }
-        
         @font-face {
             font-family: 'Noto Sans Devanagari';
             font-style: normal;
             font-weight: normal;
-            src: url('{{ storage_path('fonts/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
+            src: url('{{ asset('fonts/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
         }
         @font-face {
             font-family: 'Noto Sans Devanagari';
             font-style: normal;
             font-weight: bold;
-            src: url('{{ storage_path('fonts/NotoSansDevanagari-Bold.ttf') }}') format('truetype');
+            src: url('{{ asset('fonts/NotoSansDevanagari-Bold.ttf') }}') format('truetype');
+        }
+
+        @page {
+            size: 80mm 297mm;
+            margin: 0;
+            padding: 0;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Noto Sans Devanagari', 'DejaVu Sans', sans-serif;
+            font-family: 'Noto Sans Devanagari', 'Arial', 'Helvetica', sans-serif;
             line-height: 1.2;
         }
         
         body {
-            width: 70mm; /* Reduced from 80mm to account for padding */
+            width: 70mm;
             margin: 0 auto;
             padding: 5mm;
             color: #000;
-            font-size: 9px; /* Slightly smaller font */
+            font-size: 9px;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            max-height: 100%;
-            overflow: hidden;
         }
         
         .header {
@@ -75,27 +74,20 @@
             margin: 2px 0 6px;
         }
         
-        .bill-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 9px;
-            margin: 4px 0;
-            padding-bottom: 4px;
-            border-bottom: 1px dashed #999;
+        .divider {
+            border-top: 1px dashed #999;
+            margin: 5px 0;
         }
         
         .bill-info {
             font-size: 9px;
-            display: flex;
-            justify-content: space-between;
-            margin: 2px 0 6px;
+            margin: 2px 0;
         }
         
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 6px 0;
-            font-size: 9px;
+        .bill-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
         }
         
         .items-table {
@@ -125,25 +117,28 @@
         
         .items-table .qty {
             width: 15%;
-            text-align: right;
-            padding-right: 10px;
+            text-align: center;
         }
         
         .items-table .price {
             width: 20%;
             text-align: right;
-            padding-right: 10px;
+            padding-right: 5px;
         }
         
         .items-table .total {
             width: 15%;
             text-align: right;
-            font-weight: bold;
+        }
+        
+        .totals-section {
+            margin: 10px 0;
+            border-top: 1px dashed #999;
+            padding-top: 5px;
         }
         
         .totals-table {
             width: 100%;
-            margin: 8px 0;
             font-size: 9px;
         }
         
@@ -157,7 +152,6 @@
         
         .totals-table .amount {
             text-align: right;
-            font-weight: bold;
         }
         
         .grand-total {
@@ -169,6 +163,18 @@
             margin: 5px 0;
         }
         
+        .payment-section {
+            margin: 10px 0;
+            padding: 5px 0;
+            border-top: 1px dashed #999;
+        }
+        
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+        }
+        
         .footer {
             text-align: center;
             font-size: 9px;
@@ -178,15 +184,44 @@
             border-top: 1px dashed #999;
         }
         
-        .thank-you {
-            text-align: center;
-            font-size: 9px;
-            margin: 5px 0;
-            font-style: italic;
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
 <body>
-    @include('bills.partials.receipt')
+    @php
+        $settings = \App\Models\Setting::all()->keyBy('key')->map(function($item) {
+            return $item->value;
+        });
+        
+        $bill->load(['order.orderItems.menuItem', 'order.restaurantTable']);
+        
+        $taxRate = $bill->order->tax_rate;
+        $serviceChargeRate = $bill->order->service_charge_rate;
+        $taxAmount = $bill->subtotal * ($taxRate / 100);
+        $serviceCharge = $bill->subtotal * ($serviceChargeRate / 100);
+        $newTotal = $bill->subtotal + $taxAmount + $serviceCharge - $bill->discount_amount;
+        $totalQuantity = $bill->order->orderItems->sum('quantity');
+    @endphp
+
+    @include('bills.partials.receipt', [
+        'bill' => $bill,
+        'settings' => $settings,
+        'taxRate' => $taxRate,
+        'taxAmount' => $taxAmount,
+        'serviceChargeRate' => $serviceChargeRate,
+        'serviceCharge' => $serviceCharge,
+        'newTotal' => $newTotal
+    ])
+
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </body>
 </html>

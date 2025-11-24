@@ -132,4 +132,4 @@
     <?php echo $__env->yieldPushContent('modals'); ?>
 </body>
 </html>
-<?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+<?php /**PATH D:\restaurant-pos-desktop\backend\resources\views\layouts\app.blade.php ENDPATH**/ ?>
