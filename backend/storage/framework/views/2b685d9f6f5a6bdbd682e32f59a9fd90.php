@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 
     <style>
         :root {
@@ -573,7 +573,7 @@
         <div class="login-form-container">
             <div class="login-card">
                 <div class="logo-container">
-                    <img src="{{ asset('images/logo/logo.png') }}" alt="Restaurant POS Logo" class="logo">
+                    <img src="<?php echo e(asset('images/logo/logo.png')); ?>" alt="Restaurant POS Logo" class="logo">
                 </div>
                 
                 <div class="form-header">
@@ -581,8 +581,8 @@
                     <p class="form-subtitle">Please sign in to continue to your account</p>
                 </div>
 
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
+                <form method="POST" action="<?php echo e(route('login')); ?>">
+                    <?php echo csrf_field(); ?>
 
                     <!-- Email Input -->
                     <div class="form-group">
@@ -594,26 +594,33 @@
                                 name="email" 
                                 type="email" 
                                 class="form-control" 
-                                value="{{ old('email') }}" 
+                                value="<?php echo e(old('email')); ?>" 
                                 required 
                                 autofocus 
                                 placeholder="Enter your email"
                             >
                         </div>
-                        @error('email')
-                            <div class="error-message">{{ $message }}</div>
-                        @enderror
+                        <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="error-message"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Password Input -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                             <label for="password" class="form-label">Password</label>
-                            @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="forgot-password">
+                            <?php if(Route::has('password.request')): ?>
+                                <a href="<?php echo e(route('password.request')); ?>" class="forgot-password">
                                     Forgot password?
                                 </a>
-                            @endif
+                            <?php endif; ?>
                         </div>
                         <div class="input-wrapper">
                             <span class="input-icon"><i class="fas fa-lock"></i></span>
@@ -626,9 +633,16 @@
                                 placeholder="Enter your password"
                             >
                         </div>
-                        @error('password')
-                            <div class="error-message">{{ $message }}</div>
-                        @enderror
+                        <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="error-message"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Remember Me & Submit -->
@@ -639,7 +653,8 @@
                                 id="remember_me" 
                                 name="remember" 
                                 class="form-check-input"
-                                {{ old('remember') ? 'checked' : '' }}
+                                <?php echo e(old('remember') ? 'checked' : ''); ?>
+
                             >
                             <span>Remember me</span>
                         </label>
@@ -655,10 +670,10 @@
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                         <span style="font-size: 0.75rem; color: var(--text-light);">Powered by</span>
                         <a href="https://userssoftware.com/" onclick="event.preventDefault(); window.electronAPI ? window.electronAPI.openExternal(this.href) : window.open(this.href, '_blank');" style="display: block; transition: opacity 0.2s;">
-                            <img src="{{ asset('images/logo/USS_Logo.png') }}" alt="Users Software Systems" style="height: 80px; width: auto; opacity: 1; mix-blend-mode: multiply; display: block;">
+                            <img src="<?php echo e(asset('images/logo/USS_Logo.png')); ?>" alt="Users Software Systems" style="height: 80px; width: auto; opacity: 1; mix-blend-mode: multiply; display: block;">
                         </a>
                     </div>
-                    <span style="margin-top: 1.5rem;">&copy; {{ date('Y') }} Users Software Systems. All rights reserved.</span>
+                    <span style="margin-top: 1.5rem;">&copy; <?php echo e(date('Y')); ?> Users Software Systems. All rights reserved.</span>
                 </div>
             </div>
         </div>
@@ -703,3 +718,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/auth/login.blade.php ENDPATH**/ ?>

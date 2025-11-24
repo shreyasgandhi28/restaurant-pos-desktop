@@ -14,10 +14,8 @@ function isPackaged() {
 
 function packagedPath(...parts) {
   if (!isPackaged()) {
-    // dev: project/electron folder inside repo -> runtime and backend are ../runtime and ../backend
     return path.join(__dirname, '..', ...parts);
   }
-  // packaged: resources path points to ...\resources
   return path.join(process.resourcesPath, ...parts);
 }
 
@@ -29,8 +27,7 @@ function getPhpBinary() {
 }
 
 /**
- * runPhpArtisan - run an artisan command synchronously and return {status, stdout, stderr}
- * Uses spawnSync so we can detect failures during first-run.
+ * runPhpArtisan - run an artisan command synchronously
  */
 function runPhpArtisan(argsArray, cwd) {
   const php = getPhpBinary();
@@ -49,157 +46,153 @@ function runPhpArtisan(argsArray, cwd) {
 }
 
 /**
- * FIRST-RUN INIT: copy packaged backend to AppData; ensure DB, .env, APP_KEY, sessions file-driver etc.
+ * FIRST-RUN INIT & UPDATE LOGIC
  */
 async function firstRunInit() {
-  const appData = app.getPath('appData'); // C:\Users\<user>\AppData\Roaming
-  const userDataDir = path.join(appData, 'RestaurantPOS');
-  await fs.ensureDir(userDataDir);
+  let runtimeBackend;
+  let targetDb;
+  let userDataDir;
 
-  // packaged backend lives in resources/backend (packaged) or ../backend (dev)
-  const packagedBackend = packagedPath('backend');
+  // -------------------------------------------------------------------------
+  // 1. PATH RESOLUTION (Dev vs Prod)
+  // -------------------------------------------------------------------------
+  if (!isPackaged()) {
+    console.log('Running in DEV MODE');
+    runtimeBackend = path.join(__dirname, '..', 'backend');
+    userDataDir = app.getPath('userData'); // Still use UserData for consistency if needed, but we use local backend
 
-  // We'll keep a writable runtime copy inside AppData\RestaurantPOS\backend
-  const userBackend = path.join(userDataDir, 'backend');
+    // In Dev, DB is in the backend folder
+    targetDb = path.join(runtimeBackend, 'database', 'database.sqlite');
 
-  // Copy packaged backend to AppData if not already present
-  if (!await fs.pathExists(userBackend)) {
-    // Copy but skip heavy folders that we don't need to edit (devDependencies) - safe filter
-    await fs.copy(packagedBackend, userBackend, {
-      filter: (src) => {
-        const p = src.replace(/\\/g, '/').toLowerCase();
-        // skip node_modules from packaged backend (we already ship vendor)
-        if (p.includes('/node_modules/')) return false;
-        // skip .git if present
-        if (p.includes('/.git/')) return false;
-        return true;
-      }
-    });
-  }
-
-  // Paths we will use
-  const runtimeBackend = userBackend; // writable backend copy used at runtime
-  const packagedDB = path.join(packagedBackend, 'database', 'database.sqlite');
-  const targetDb = path.join(userDataDir, 'database.sqlite');
-  const targetStorage = path.join(userDataDir, 'storage');
-
-  // Ensure storage folder in AppData exists (copy packaged storage if present)
-  if (!await fs.pathExists(targetStorage)) {
-    const packagedStorage = path.join(packagedBackend, 'storage');
-    if (await fs.pathExists(packagedStorage)) {
-      await fs.copy(packagedStorage, targetStorage);
-    } else {
-      await fs.ensureDir(targetStorage);
-    }
-  }
-
-  // Ensure DB exists in AppData (copy packaged DB if available)
-  if (!await fs.pathExists(targetDb) || (await fs.stat(targetDb)).size === 0) {
-    if (await fs.pathExists(packagedDB) && (await fs.stat(packagedDB)).size > 0) {
-      await fs.copy(packagedDB, targetDb);
-    } else {
-      // create empty file so artisan migrate can run
+    // Ensure DB exists for dev
+    if (!await fs.pathExists(targetDb)) {
       await fs.ensureFile(targetDb);
     }
+
+  } else {
+    // PRODUCTION MODE
+    const appData = app.getPath('appData');
+    userDataDir = path.join(appData, 'RestaurantPOS');
+    await fs.ensureDir(userDataDir);
+
+    const packagedBackend = packagedPath('backend');
+    const userBackend = path.join(userDataDir, 'backend');
+    const versionFile = path.join(userDataDir, 'version.json');
+
+    // Determine if we need to update
+    let currentVersion = app.getVersion();
+    let storedVersion = '0.0.0';
+    if (await fs.pathExists(versionFile)) {
+      try {
+        const vData = await fs.readJson(versionFile);
+        storedVersion = vData.version;
+      } catch (e) { }
+    }
+
+    const needsUpdate = (currentVersion !== storedVersion) || (!await fs.pathExists(userBackend));
+
+    if (needsUpdate) {
+      console.log(`Updating from ${storedVersion} to ${currentVersion}...`);
+
+      // Preserve User Data
+      const tempStorage = path.join(userDataDir, 'storage_temp');
+      const tempEnv = path.join(userDataDir, '.env.temp');
+      const userStorage = path.join(userBackend, 'storage');
+      const userEnv = path.join(userBackend, '.env');
+
+      if (await fs.pathExists(userEnv)) await fs.copy(userEnv, tempEnv);
+      if (await fs.pathExists(userStorage)) await fs.move(userStorage, tempStorage, { overwrite: true });
+
+      // Wipe and Copy
+      await fs.emptyDir(userBackend);
+      await fs.copy(packagedBackend, userBackend, {
+        filter: (src) => {
+          const p = src.replace(/\\/g, '/').toLowerCase();
+          return !p.includes('/node_modules/') && !p.includes('/.git/');
+        }
+      });
+
+      // Restore
+      if (await fs.pathExists(tempEnv)) await fs.move(tempEnv, userEnv, { overwrite: true });
+      if (await fs.pathExists(tempStorage)) {
+        await fs.copy(tempStorage, userStorage, { overwrite: true });
+        await fs.remove(tempStorage);
+      }
+
+      await fs.writeJson(versionFile, { version: currentVersion });
+    }
+
+    runtimeBackend = userBackend;
+
+    // DB Handling for Prod
+    targetDb = path.join(userDataDir, 'database.sqlite');
+    const packagedDB = path.join(packagedBackend, 'database', 'database.sqlite');
+
+    if (!await fs.pathExists(targetDb) || (await fs.stat(targetDb)).size === 0) {
+      if (await fs.pathExists(packagedDB) && (await fs.stat(packagedDB)).size > 0) {
+        await fs.copy(packagedDB, targetDb);
+      } else {
+        await fs.ensureFile(targetDb);
+      }
+    }
   }
 
-  // Prepare runtime .env inside the writable backend copy (runtimeBackend/.env)
+  // -------------------------------------------------------------------------
+  // 2. RUNTIME CONFIGURATION (.env) - Runs for BOTH Dev and Prod
+  // -------------------------------------------------------------------------
   const runtimeEnvPath = path.join(runtimeBackend, '.env');
   let envText = '';
   if (await fs.pathExists(runtimeEnvPath)) {
     envText = await fs.readFile(runtimeEnvPath, 'utf8');
   }
 
-  // Force desktop-safe env settings
-  envText = envText.replace(/APP_ENV=.*/g, 'APP_ENV=production');
-  if (!envText.includes('APP_ENV=')) envText += '\nAPP_ENV=production\n';
+  // Helper to enforce env vars
+  const forceEnv = (key, val) => {
+    const regex = new RegExp(`^${key}=.*`, 'gm');
+    if (envText.match(regex)) {
+      envText = envText.replace(regex, `${key}=${val}`);
+    } else {
+      envText += `\n${key}=${val}`;
+    }
+  };
 
-  envText = envText.replace(/APP_DEBUG=.*/g, 'APP_DEBUG=false');
-  if (!envText.includes('APP_DEBUG=')) envText += '\nAPP_DEBUG=false\n';
+  // CRITICAL: Fixes 419 Page Expired (Session Issues)
+  forceEnv('APP_ENV', 'production');
+  forceEnv('APP_DEBUG', isPackaged() ? 'false' : 'true');
 
-  envText = envText.replace(/APP_URL=.*/g, 'APP_URL=http://127.0.0.1:8000');
-  if (!envText.includes('APP_URL=')) envText += '\nAPP_URL=http://127.0.0.1:8000\n';
+  forceEnv('APP_URL', 'http://127.0.0.1:8000');
+  forceEnv('SESSION_DRIVER', 'file');
+  forceEnv('SESSION_DOMAIN', 'null');
+  forceEnv('SESSION_SECURE_COOKIE', 'false');
+  forceEnv('SANCTUM_STATEFUL_DOMAINS', '127.0.0.1:8000');
 
-  // Force file session driver for desktop
-  if (envText.includes('SESSION_DRIVER=')) {
-    envText = envText.replace(/SESSION_DRIVER=.*/g, 'SESSION_DRIVER=file');
-  } else {
-    envText += '\nSESSION_DRIVER=file\n';
-  }
-
-  // Session domain + secure cookie defaults
-  if (envText.includes('SESSION_DOMAIN=')) {
-    envText = envText.replace(/SESSION_DOMAIN=.*/g, 'SESSION_DOMAIN=null');
-  } else {
-    envText += '\nSESSION_DOMAIN=null\n';
-  }
-  if (envText.includes('SESSION_SECURE_COOKIE=')) {
-    envText = envText.replace(/SESSION_SECURE_COOKIE=.*/g, 'SESSION_SECURE_COOKIE=false');
-  } else {
-    envText += '\nSESSION_SECURE_COOKIE=false\n';
-  }
-
-  // DB path absolute (convert to forward slashes to be safe in .env)
+  // DB Path
   const dbForEnv = targetDb.split(path.sep).join(path.posix.sep);
-  if (envText.includes('DB_DATABASE=')) {
-    envText = envText.replace(/DB_DATABASE=.*/g, `DB_DATABASE=${dbForEnv}`);
-  } else {
-    envText += `\nDB_DATABASE=${dbForEnv}\n`;
-  }
+  forceEnv('DB_DATABASE', dbForEnv);
 
-  // Write .env to runtime backend
   await fs.writeFile(runtimeEnvPath, envText, 'utf8');
 
-  // Ensure storage folders inside runtimeBackend are present and writable
+  // -------------------------------------------------------------------------
+  // 3. STORAGE & CACHE - Runs for BOTH
+  // -------------------------------------------------------------------------
   await fs.ensureDir(path.join(runtimeBackend, 'storage', 'framework', 'sessions'));
   await fs.ensureDir(path.join(runtimeBackend, 'storage', 'framework', 'views'));
   await fs.ensureDir(path.join(runtimeBackend, 'storage', 'logs'));
 
-  // Remove cached config / routes / views so Laravel re-reads .env
-  const bootstrapCacheDir = path.join(runtimeBackend, 'bootstrap', 'cache');
-  try { await fs.remove(path.join(bootstrapCacheDir, 'config.php')); } catch (e) { }
-  try { await fs.remove(path.join(bootstrapCacheDir, 'routes-v7.php')); } catch (e) { }
-  try { await fs.remove(path.join(bootstrapCacheDir, 'packages.php')); } catch (e) { }
-  try { await fs.remove(path.join(bootstrapCacheDir, 'services.php')); } catch (e) { }
-
-  // Ensure APP_KEY exists: try artisan key:generate, else create random base64 key
-  let hasAppKey = /APP_KEY=/.test(envText);
-  if (!hasAppKey) {
-    const resKey = runPhpArtisan(['key:generate', '--force'], runtimeBackend);
-    if (resKey.status !== 0) {
-      // fallback random key
-      try {
-        const crypto = require('crypto');
-        const randomKey = 'base64:' + crypto.randomBytes(32).toString('base64');
-        envText = envText.replace(/APP_KEY=.*/g, '');
-        envText += `\nAPP_KEY=${randomKey}\n`;
-        await fs.writeFile(runtimeEnvPath, envText, 'utf8');
-      } catch (e) {
-        // ignore
-      }
-    } else {
-      // if artisan succeeded, reload envText from file
-      envText = await fs.readFile(runtimeEnvPath, 'utf8');
-    }
-  }
-
-  // Attempt to clear config and views (best-effort)
+  // Clear cache to ensure new .env is read
   try { runPhpArtisan(['config:clear'], runtimeBackend); } catch (e) { }
   try { runPhpArtisan(['view:clear'], runtimeBackend); } catch (e) { }
+  try { runPhpArtisan(['cache:clear'], runtimeBackend); } catch (e) { }
 
-  // If DB file is empty, try to run migrations (best-effort)
-  try {
-    const stats = await fs.stat(targetDb);
-    if (stats.size === 0) {
-      const migrateRes = runPhpArtisan(['migrate', '--force'], runtimeBackend);
-      if (migrateRes.status !== 0) {
-        const logPath = path.join(userDataDir, 'first_run_errors.log');
-        await fs.appendFile(logPath, `Migrate failed: stdout=${migrateRes.stdout}\nstderr=${migrateRes.stderr}\n`, 'utf8');
-      }
-    }
-  } catch (e) {
-    // ignore
+  // Generate Key if missing
+  if (!envText.includes('APP_KEY=') || envText.match(/APP_KEY=\s*$/m)) {
+    runPhpArtisan(['key:generate', '--force'], runtimeBackend);
   }
+
+  // Migrate
+  try {
+    runPhpArtisan(['migrate', '--force'], runtimeBackend);
+  } catch (e) { }
 
   return { packagedBackend: runtimeBackend, targetDb, userDataDir };
 }
@@ -207,7 +200,7 @@ async function firstRunInit() {
 function startPhpServer(packagedBackend) {
   const phpBin = getPhpBinary();
   if (!fs.existsSync(phpBin)) {
-    dialog.showErrorBox('Startup Error', `Bundled PHP not found: ${phpBin}\nPlease reinstall or rebuild the installer with runtime files included.`);
+    dialog.showErrorBox('Startup Error', `Bundled PHP not found: ${phpBin}`);
     app.quit();
     return;
   }
@@ -222,7 +215,6 @@ function startPhpServer(packagedBackend) {
 
   phpProcess.stdout.on('data', d => console.log('[PHP]', d.toString()));
   phpProcess.stderr.on('data', d => console.error('[PHP ERR]', d.toString()));
-  phpProcess.on('exit', code => console.log('[PHP exited]', code));
 }
 
 function createWindow() {
@@ -239,20 +231,16 @@ function createWindow() {
   mainWindow.loadURL('http://127.0.0.1:8000/');
 }
 
-// IPC handler to open URLs in default browser
 ipcMain.on('open-external', (event, url) => {
   shell.openExternal(url);
 });
 
-
 app.whenReady().then(async () => {
   try {
     const { packagedBackend } = await firstRunInit();
-
-    // Start php server using the writable runtime backend copy
     startPhpServer(packagedBackend);
 
-    // Wait until server responds (poll)
+    // Poll for server
     const max = 30;
     let i = 0;
     const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -267,7 +255,7 @@ app.whenReady().then(async () => {
     }
 
     if (i === max) {
-      throw new Error('Local server did not start in time. Check runtime/php/php.exe or VC++ redistributable. Check first_run_errors.log in AppData if present.');
+      throw new Error('Local server did not start in time.');
     }
 
     createWindow();
