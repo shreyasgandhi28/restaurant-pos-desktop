@@ -21,6 +21,7 @@
     "appId": "com.yourcompany.restaurantpos",
     "publish": [],
     "win": {
+      "icon": "../build/icon.ico",
       "target": [
         "nsis"
       ]
