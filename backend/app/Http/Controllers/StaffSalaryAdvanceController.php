@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SalaryAdvance;
-use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,14 +13,14 @@ class StaffSalaryAdvanceController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = SalaryAdvance::with('user')
+            $query = SalaryAdvance::with('employee')
                 ->latest();
 
             // Apply search filter
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
-                    $q->whereHas('user', function($userQuery) use ($search) {
+                    $q->whereHas('employee', function($userQuery) use ($search) {
                         $userQuery->where('name', 'like', "%{$search}%");
                     })->orWhere('notes', 'like', "%{$search}%");
                 });
@@ -33,7 +33,7 @@ class StaffSalaryAdvanceController extends Controller
 
             // Apply staff filter
             if ($request->filled('staff_id')) {
-                $query->where('user_id', $request->staff_id);
+                $query->where('employee_id', $request->staff_id);
             }
 
             // Apply payment method filter
@@ -43,9 +43,7 @@ class StaffSalaryAdvanceController extends Controller
 
             $advances = $query->paginate(15)->appends($request->query());
 
-            $staff = User::role(['waiter', 'manager'])
-                ->where('name', '!=', 'Staff User')
-                ->select('id', 'name')
+            $staff = Employee::select('id', 'name')
                 ->orderBy('name')
                 ->get();
 
@@ -76,7 +74,7 @@ class StaffSalaryAdvanceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'employee_id' => 'required|exists:employees,id',
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string|in:cash,bank_transfer,cheque,other',
             'notes' => 'nullable|string|max:1000',
@@ -86,7 +84,7 @@ class StaffSalaryAdvanceController extends Controller
         try {
             $advance = DB::transaction(function () use ($validated) {
                 return SalaryAdvance::create([
-                    'user_id' => $validated['user_id'],
+                    'employee_id' => $validated['employee_id'],
                     'amount' => $validated['amount'],
                     'payment_method' => $validated['payment_method'],
                     'notes' => $validated['notes'] ?? null,
@@ -104,7 +102,7 @@ class StaffSalaryAdvanceController extends Controller
 
     public function show(SalaryAdvance $advance)
     {
-        $advance->load('user');
+        $advance->load('employee');
         
         return view('staff.salary-advances.show', [
             'advance' => $advance
@@ -113,9 +111,7 @@ class StaffSalaryAdvanceController extends Controller
 
     public function edit(SalaryAdvance $advance)
     {
-        $staff = User::role(['waiter', 'staff', 'manager'])
-            ->where('name', '!=', 'Staff User')
-            ->select('id', 'name')
+        $staff = Employee::select('id', 'name')
             ->orderBy('name')
             ->get();
             
@@ -129,7 +125,7 @@ class StaffSalaryAdvanceController extends Controller
     public function update(Request $request, SalaryAdvance $advance)
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'employee_id' => 'required|exists:employees,id',
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string|in:cash,bank_transfer,cheque,other',
             'notes' => 'nullable|string|max:1000',
@@ -139,7 +135,7 @@ class StaffSalaryAdvanceController extends Controller
 
         try {
             $advance->update([
-                'user_id' => $validated['user_id'],
+                'employee_id' => $validated['employee_id'],
                 'amount' => $validated['amount'],
                 'payment_method' => $validated['payment_method'],
                 'notes' => $validated['notes'] ?? null,
@@ -159,8 +155,7 @@ class StaffSalaryAdvanceController extends Controller
 
     public function summary()
     {
-        $summary = User::role(['waiter', 'staff', 'manager'])
-            ->withSum(['salaryAdvances as total_advances' => function ($query) {
+        $summary = Employee::withSum(['salaryAdvances as total_advances' => function ($query) {
                 $query->where('status', 'approved');
             }], 'amount')
             ->select('id', 'name')

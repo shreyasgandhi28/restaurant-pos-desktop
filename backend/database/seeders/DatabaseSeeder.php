@@ -35,15 +35,7 @@ class DatabaseSeeder extends Seeder
         );
         $admin->syncRoles(['admin']);
 
-        // Create Manager User
-        $manager = User::firstOrCreate(
-            ['email' => 'manager@restaurant.com'],
-            [
-                'name' => 'Manager User',
-                'password' => bcrypt('password'),
-            ]
-        );
-        $manager->syncRoles(['manager']);
+        // Manager user removed as per request to keep only Admin and Staff
 
         // Create Staff User
         $staff = User::firstOrCreate(
@@ -53,7 +45,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
             ]
         );
-        $staff->syncRoles(['waiter']);
+        $staff->syncRoles(['staff']);
 
         // Create Categories
         $categories = [

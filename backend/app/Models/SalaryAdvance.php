@@ -9,6 +9,7 @@ class SalaryAdvance extends Model
 {
     protected $fillable = [
         'user_id',
+        'employee_id',
         'amount',
         'payment_method',
         'notes',
@@ -25,6 +26,11 @@ class SalaryAdvance extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
     }
 
     public function approvedBy(): BelongsTo

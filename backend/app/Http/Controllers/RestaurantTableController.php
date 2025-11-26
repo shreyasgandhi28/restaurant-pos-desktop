@@ -55,8 +55,8 @@ class RestaurantTableController extends Controller
     public function update(Request $request, RestaurantTable $table)
     {
         $validated = $request->validate([
-            'table_number' => 'required|string|unique:restaurant_tables,table_number,' . $table->id,
-            'capacity' => 'required|integer|min:1',
+            'table_number' => 'sometimes|required|string|unique:restaurant_tables,table_number,' . $table->id,
+            'capacity' => 'sometimes|required|integer|min:1',
             'status' => 'required|in:available,occupied,reserved',
         ]);
 

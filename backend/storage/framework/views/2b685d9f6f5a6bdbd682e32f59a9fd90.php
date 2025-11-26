@@ -275,7 +275,7 @@
 
         .form-control {
             width: 100%;
-            padding: 0.8rem 0.95rem 0.8rem 2.5rem;
+            padding: 0.8rem 0.95rem 0.8rem 3.5rem !important;
             font-size: 0.9rem;
             border: 2px solid var(--border-color);
             border-radius: 0.7rem;

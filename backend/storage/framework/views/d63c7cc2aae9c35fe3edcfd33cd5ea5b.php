@@ -1,29 +1,27 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Staff Salary Advances'); ?>
 
-@section('title', 'Staff Salary Advances')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Error Messages -->
-    @if(session('error') || $errors->any())
+    <?php if(session('error') || $errors->any()): ?>
     <div class="mb-6">
-        @if(session('error'))
+        <?php if(session('error')): ?>
         <div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded relative" role="alert">
-            <span class="block sm:inline">{{ session('error') }}</span>
+            <span class="block sm:inline"><?php echo e(session('error')); ?></span>
         </div>
-        @endif
+        <?php endif; ?>
 
-        @if($errors->any())
+        <?php if($errors->any()): ?>
         <div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded relative" role="alert">
             <ul class="list-disc pl-5">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
+                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li><?php echo e($error); ?></li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
-    @endif
+    <?php endif; ?>
 
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -31,7 +29,7 @@
             <p class="text-gray-600">View and manage staff salary advances</p>
         </div>
         <div class="flex space-x-3">
-            <a href="{{ route('staff.index') }}" 
+            <a href="<?php echo e(route('staff.index')); ?>" 
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
                 Manage Staff List
@@ -53,28 +51,28 @@
         <dl class="grid grid-cols-1 gap-5 sm:grid-cols-3">
             <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
                 <dt class="text-sm font-medium text-gray-500 truncate">Total Advances</dt>
-                <dd class="mt-1 text-2xl font-semibold text-gray-900">₹{{ number_format($total_advances, 2) }}</dd>
+                <dd class="mt-1 text-2xl font-semibold text-gray-900">₹<?php echo e(number_format($total_advances, 2)); ?></dd>
             </div>
             <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
                 <dt class="text-sm font-medium text-gray-500 truncate">This Month</dt>
-                <dd class="mt-1 text-2xl font-semibold text-gray-900">₹{{ number_format($monthly_advances, 2) }}</dd>
+                <dd class="mt-1 text-2xl font-semibold text-gray-900">₹<?php echo e(number_format($monthly_advances, 2)); ?></dd>
             </div>
             <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
                 <dt class="text-sm font-medium text-gray-500 truncate">Active Staff</dt>
-                <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ $staff->count() }}</dd>
+                <dd class="mt-1 text-2xl font-semibold text-gray-900"><?php echo e($staff->count()); ?></dd>
             </div>
         </dl>
     </div>
 
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <form method="GET" action="{{ route('staff-salary-advances.index') }}" class="space-y-3">
+            <form method="GET" action="<?php echo e(route('staff-salary-advances.index')); ?>" class="space-y-3">
                 <div class="flex flex-wrap items-center gap-3">
                     <!-- Search -->
                     <div class="flex-1 min-w-[200px]">
                         <input type="text"
                                name="search"
-                               value="{{ request('search') }}"
+                               value="<?php echo e(request('search')); ?>"
                                placeholder="Search staff or notes..."
                                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
@@ -84,11 +82,12 @@
                         <select name="staff_id"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
                             <option value="">All Staff</option>
-                            @foreach($staff as $staffMember)
-                                <option value="{{ $staffMember->id }}" {{ request('staff_id') == $staffMember->id ? 'selected' : '' }}>
-                                    {{ $staffMember->name }}
+                            <?php $__currentLoopData = $staff; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $staffMember): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($staffMember->id); ?>" <?php echo e(request('staff_id') == $staffMember->id ? 'selected' : ''); ?>>
+                                    <?php echo e($staffMember->name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
 
@@ -97,10 +96,10 @@
                         <select name="payment_method"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
                             <option value="">All Payments</option>
-                            <option value="cash" {{ request('payment_method') === 'cash' ? 'selected' : '' }}>Cash</option>
-                            <option value="upi" {{ request('payment_method') === 'upi' ? 'selected' : '' }}>UPI</option>
-                            <option value="cheque" {{ request('payment_method') === 'cheque' ? 'selected' : '' }}>Cheque</option>
-                            <option value="other" {{ request('payment_method') === 'other' ? 'selected' : '' }}>Other</option>
+                            <option value="cash" <?php echo e(request('payment_method') === 'cash' ? 'selected' : ''); ?>>Cash</option>
+                            <option value="upi" <?php echo e(request('payment_method') === 'upi' ? 'selected' : ''); ?>>UPI</option>
+                            <option value="cheque" <?php echo e(request('payment_method') === 'cheque' ? 'selected' : ''); ?>>Cheque</option>
+                            <option value="other" <?php echo e(request('payment_method') === 'other' ? 'selected' : ''); ?>>Other</option>
                         </select>
                     </div>
 
@@ -108,7 +107,7 @@
                     <div class="w-40">
                         <input type="date"
                                name="date"
-                               value="{{ request('date') }}"
+                               value="<?php echo e(request('date')); ?>"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
 
@@ -118,18 +117,18 @@
                                 class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             Filter
                         </button>
-                        @if(request()->hasAny(['search', 'staff_id', 'payment_method', 'date']))
-                            <a href="{{ route('staff-salary-advances.index') }}" 
+                        <?php if(request()->hasAny(['search', 'staff_id', 'payment_method', 'date'])): ?>
+                            <a href="<?php echo e(route('staff-salary-advances.index')); ?>" 
                                class="ml-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 Clear
                             </a>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
                 
                 <div class="mt-2">
                     <div class="text-sm text-gray-500">
-                        Showing {{ $advances->firstItem() }} to {{ $advances->lastItem() }} of {{ $advances->total() }} results
+                        Showing <?php echo e($advances->firstItem()); ?> to <?php echo e($advances->lastItem()); ?> of <?php echo e($advances->total()); ?> results
                     </div>
                 </div>
             </form>
@@ -147,19 +146,19 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="advancesTableBody">
-                    @foreach($advances as $advance)
+                    <?php $__currentLoopData = $advances; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $advance): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ $advance->employee->name }}</div>
+                            <div class="text-sm font-medium text-gray-900"><?php echo e($advance->employee->name); ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">₹{{ number_format($advance->amount, 2) }}</div>
+                            <div class="text-sm text-gray-900">₹<?php echo e(number_format($advance->amount, 2)); ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">{{ $advance->advance_date->format('M d, Y') }}</div>
+                            <div class="text-sm text-gray-500"><?php echo e($advance->advance_date->format('M d, Y')); ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @php
+                            <?php
                                 $paymentMethod = match($advance->payment_method) {
                                     'upi' => 'UPI',
                                     'cash' => 'Cash',
@@ -174,41 +173,44 @@
                                     'other' => 'bg-gray-100 text-gray-800',
                                     default => 'bg-gray-100 text-gray-800',
                                 };
-                            @endphp
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $bgColor }} uppercase">
-                                {{ $paymentMethod }}
+                            ?>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?php echo e($bgColor); ?> uppercase">
+                                <?php echo e($paymentMethod); ?>
+
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">
-                            {{ $advance->notes ? Str::limit($advance->notes, 30) : '—' }}
+                            <?php echo e($advance->notes ? Str::limit($advance->notes, 30) : '—'); ?>
+
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex justify-end space-x-1">
-                                <a href="{{ route('staff-salary-advances.show', $advance) }}" 
+                                <a href="<?php echo e(route('staff-salary-advances.show', $advance)); ?>" 
                                    class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500">
                                     View
                                 </a>
-                                <a href="{{ route('staff-salary-advances.edit', $advance) }}" 
+                                <a href="<?php echo e(route('staff-salary-advances.edit', $advance)); ?>" 
                                    class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500">
                                     Edit
                                 </a>
-                                @if($advance->status === 'pending')
+                                <?php if($advance->status === 'pending'): ?>
                                 <button class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-green-500" 
                                         title="Approve">
                                     <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
                                 </button>
-                                @endif
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
         <div class="px-4 py-4 bg-gray-50">
-            {{ $advances->links() }}
+            <?php echo e($advances->links()); ?>
+
         </div>
     </div>
     </div>
@@ -219,8 +221,8 @@
     <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3 text-left">
             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Add New Staff</h3>
-            <form id="addStaffForm" action="{{ route('staff.store') }}" method="POST">
-                @csrf
+            <form id="addStaffForm" action="<?php echo e(route('staff.store')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
                 <div class="mb-4">
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                     <input type="text" id="name" name="name" required 
@@ -261,16 +263,16 @@
     <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3 text-left">
             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Add Salary Advance</h3>
-            <form id="addAdvanceForm" action="{{ route('staff-salary-advances.store') }}" method="POST">
-                @csrf
+            <form id="addAdvanceForm" action="<?php echo e(route('staff-salary-advances.store')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
                 <div class="mb-4">
                     <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-1">Staff Member</label>
                     <select id="employee_id" name="employee_id" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="">Select Staff</option>
-                        @foreach($staff as $member)
-                            <option value="{{ $member->id }}">{{ $member->name }}</option>
-                        @endforeach
+                        <?php $__currentLoopData = $staff; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($member->id); ?>"><?php echo e($member->name); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
                 <div class="mb-4">
@@ -282,7 +284,7 @@
                     <label for="advance_date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                     <input type="date" id="advance_date" name="advance_date" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                           value="{{ now()->format('Y-m-d') }}">
+                           value="<?php echo e(now()->format('Y-m-d')); ?>">
                 </div>
                 <div class="mb-4">
                     <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
@@ -317,13 +319,13 @@
 
 
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
@@ -381,4 +383,6 @@
 
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/staff/salary-advances/index.blade.php ENDPATH**/ ?>
