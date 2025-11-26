@@ -53,7 +53,17 @@ class CategoryController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        // Generate unique slug
+        $slug = Str::slug($validated['name']);
+        $originalSlug = $slug;
+        $counter = 1;
+        
+        while (Category::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+        
+        $validated['slug'] = $slug;
         
         Category::create($validated);
 
@@ -81,7 +91,17 @@ class CategoryController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        // Generate unique slug (excluding current category)
+        $slug = Str::slug($validated['name']);
+        $originalSlug = $slug;
+        $counter = 1;
+        
+        while (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+        
+        $validated['slug'] = $slug;
         
         $category->update($validated);
 

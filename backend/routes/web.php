@@ -87,7 +87,9 @@ Route::middleware('auth')->group(function () {
         // Staff Management
         Route::get('/staff', [\App\Http\Controllers\StaffController::class, 'index'])->name('staff.index');
         Route::post('/staff', [\App\Http\Controllers\StaffController::class, 'store'])->name('staff.store');
+        Route::get('/staff/{staff}/edit', [\App\Http\Controllers\StaffController::class, 'edit'])->name('staff.edit');
         Route::delete('/staff/{staff}', [\App\Http\Controllers\StaffController::class, 'destroy'])->name('staff.destroy');
+        Route::put('/staff/{staff}', [\App\Http\Controllers\StaffController::class, 'update'])->name('staff.update');
     });
 });
 
