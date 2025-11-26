@@ -101,11 +101,10 @@
                                    class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500">
                                     Edit
                                 </a>
-                                <form action="{{ route('categories.destroy', $category) }}" method="POST" class="inline" 
-                                      onsubmit="return confirm('Are you sure you want to delete this category?')">
+                                <form id="delete-form-{{ $category->id }}" action="{{ route('categories.destroy', $category) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" 
+                                    <button type="button" onclick="confirmDelete('delete-form-{{ $category->id }}', 'Are you sure you want to delete this category?')"
                                             class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500">
                                         Delete
                                     </button>

@@ -3,140 +3,138 @@
 @section('title', 'Edit Salary Advance')
 
 @section('content')
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">
-                        Edit Salary Advance
-                    </h3>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                        Advance #{{ $advance->id }}
-                    </p>
-                </div>
-                <a href="{{ route('staff-salary-advances.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Back to List
-                </a>
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Salary Advance</h1>
+                <p class="text-gray-600">Update salary advance information</p>
             </div>
+            <a href="{{ route('staff-salary-advances.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded transition">
+                Back to Advances
+            </a>
         </div>
-        
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
         <form action="{{ route('staff-salary-advances.update', $advance) }}" method="POST">
             @csrf
             @method('PUT')
-            
-            <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-                <dl class="sm:divide-y sm:divide-gray-200">
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                            <label for="user_id">Staff Member</label>
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <select id="user_id" name="user_id" required 
-                                    class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                                @foreach($staff as $member)
-                                    <option value="{{ $member->id }}" {{ $advance->user_id == $member->id ? 'selected' : '' }}>
-                                        {{ $member->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </dd>
-                    </div>
-                    
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                            <label for="amount">Amount (₹)</label>
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <div class="relative rounded-md shadow-sm">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">₹</span>
-                                </div>
-                                <input type="number" step="0.01" min="0.01" name="amount" id="amount" required
-                                       value="{{ old('amount', $advance->amount) }}"
-                                       class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md">
-                            </div>
-                        </dd>
-                    </div>
-                    
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                            <label for="advance_date">Advance Date</label>
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <input type="date" name="advance_date" id="advance_date" required
-                                   value="{{ old('advance_date', $advance->advance_date->format('Y-m-d')) }}"
-                                   class="block w-full sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-                        </dd>
-                    </div>
-                    
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                            <label for="payment_method">Payment Method</label>
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <select id="payment_method" name="payment_method" required
-                                    class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                                @foreach($paymentMethods as $method)
-                                    <option value="{{ $method }}" {{ $advance->payment_method == $method ? 'selected' : '' }}>
-                                        {{ ucfirst(str_replace('_', ' ', $method)) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </dd>
-                    </div>
-                    
-                    
-                    @if($advance->approvedBy)
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">Approved By</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ $advance->approvedBy->name ?? 'N/A' }}
-                        </dd>
-                    </div>
-                    @endif
-                    
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                            <label for="notes">Notes</label>
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <textarea id="notes" name="notes" rows="3"
-                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                    placeholder="Add any additional notes here">{{ old('notes', $advance->notes) }}</textarea>
-                        </dd>
-                    </div>
-                    
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">Created</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ $advance->created_at->format('M d, Y H:i') }}
-                        </dd>
-                    </div>
-                    
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ $advance->updated_at->format('M d, Y H:i') }}
-                        </dd>
-                    </div>
-                </dl>
-            </div>
-            
-            <div class="px-4 py-4 bg-gray-50 sm:px-6">
-                <div class="flex justify-end space-x-3">
-                    <a href="{{ route('staff-salary-advances.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Cancel
-                    </a>
-                    <button type="submit" class="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Update Advance
-                    </button>
+
+            <div class="space-y-6">
+                <!-- Staff Member -->
+                <div>
+                    <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        Staff Member *
+                    </label>
+                    <select id="employee_id" 
+                            name="employee_id" 
+                            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('employee_id') border-red-500 @enderror"
+                            required>
+                        @foreach($staff as $member)
+                            <option value="{{ $member->id }}" {{ old('employee_id', $advance->employee_id) == $member->id ? 'selected' : '' }}>
+                                {{ $member->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('employee_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Amount -->
+                <div>
+                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+                        Amount (₹) *
+                    </label>
+                    <input type="number" 
+                           name="amount" 
+                           id="amount" 
+                           step="0.01"
+                           min="0.01"
+                           value="{{ old('amount', $advance->amount) }}"
+                           class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('amount') border-red-500 @enderror"
+                           required>
+                    @error('amount')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Advance Date -->
+                <div>
+                    <label for="advance_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        Advance Date *
+                    </label>
+                    <input type="date" 
+                           name="advance_date" 
+                           id="advance_date" 
+                           value="{{ old('advance_date', $advance->advance_date->format('Y-m-d')) }}"
+                           class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('advance_date') border-red-500 @enderror"
+                           required>
+                    @error('advance_date')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Payment Method -->
+                <div>
+                    <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-2">
+                        Payment Method *
+                    </label>
+                    <select id="payment_method" 
+                            name="payment_method" 
+                            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('payment_method') border-red-500 @enderror"
+                            required>
+                        @foreach($paymentMethods as $method)
+                            <option value="{{ $method }}" {{ old('payment_method', $advance->payment_method) == $method ? 'selected' : '' }}>
+                                {{ ucfirst(str_replace('_', ' ', $method)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('payment_method')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                        Notes
+                    </label>
+                    <textarea name="notes" 
+                              id="notes" 
+                              rows="3"
+                              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('notes') border-red-500 @enderror"
+                              placeholder="Add any additional notes here">{{ old('notes', $advance->notes) }}</textarea>
+                    @error('notes')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
+
+            <!-- Buttons -->
+            <div class="mt-6 flex items-center justify-between">
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded transition">
+                    Update Advance
+                </button>
+                <a href="{{ route('staff-salary-advances.index') }}" class="text-gray-600 hover:text-gray-800 font-medium">
+                    Cancel
+                </a>
+            </div>
         </form>
+    </div>
+
+    <!-- Advance Information -->
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 class="text-sm font-semibold text-blue-900 mb-2">Advance Information</h3>
+        <div class="text-sm text-blue-800 space-y-1">
+            <p><strong>Advance ID:</strong> #{{ $advance->id }}</p>
+            <p><strong>Created:</strong> {{ $advance->created_at->format('M d, Y h:i A') }}</p>
+            <p><strong>Last Updated:</strong> {{ $advance->updated_at->format('M d, Y h:i A') }}</p>
+            @if($advance->approvedBy)
+                <p><strong>Approved By:</strong> {{ $advance->approvedBy->name }}</p>
+            @endif
+        </div>
     </div>
 </div>
 @endsection

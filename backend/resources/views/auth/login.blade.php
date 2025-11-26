@@ -263,19 +263,31 @@
 
         .input-icon {
             position: absolute;
-            left: 1rem;
+            left: 0.875rem;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-light);
-            font-size: 1rem;
+            font-size: 0.95rem;
             pointer-events: none;
             transition: color 0.2s;
             z-index: 1;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .input-icon i {
+            display: block;
+            line-height: 1;
+        }
+
+        .input-icon .fa-envelope {
+            transform: translateY(2px);
         }
 
         .form-control {
             width: 100%;
-            padding: 0.8rem 0.95rem 0.8rem 3.5rem !important;
+            padding: 0.8rem 0.95rem 0.8rem 2.5rem !important;
             font-size: 0.9rem;
             border: 2px solid var(--border-color);
             border-radius: 0.7rem;

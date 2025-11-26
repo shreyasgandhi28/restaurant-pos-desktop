@@ -1,15 +1,13 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Menu Items'); ?>
 
-@section('title', 'Menu Items')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6 flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Menu Items</h1>
             <p class="text-gray-600">Manage your restaurant menu</p>
         </div>
-        <a href="{{ route('menu-items.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+        <a href="<?php echo e(route('menu-items.create')); ?>" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
             Add Menu Item
         </a>
     </div>
@@ -20,16 +18,17 @@
             <!-- Category Buttons - Left -->
             <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap gap-2">
-                    <a href="{{ route('menu-items.index') }}" 
-                       class="px-4 py-2 text-sm font-medium rounded-md {{ !request('category') ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} transition-colors whitespace-nowrap">
+                    <a href="<?php echo e(route('menu-items.index')); ?>" 
+                       class="px-4 py-2 text-sm font-medium rounded-md <?php echo e(!request('category') ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'); ?> transition-colors whitespace-nowrap">
                         All Items
                     </a>
-                    @foreach($categories as $category)
-                        <a href="{{ route('menu-items.index', ['category' => $category->id]) }}" 
-                           class="px-4 py-2 text-sm font-medium rounded-md {{ request('category') == $category->id ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} transition-colors whitespace-nowrap">
-                            {{ $category->name }}
+                    <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <a href="<?php echo e(route('menu-items.index', ['category' => $category->id])); ?>" 
+                           class="px-4 py-2 text-sm font-medium rounded-md <?php echo e(request('category') == $category->id ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'); ?> transition-colors whitespace-nowrap">
+                            <?php echo e($category->name); ?>
+
                         </a>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
             
@@ -45,52 +44,54 @@
 
     <!-- Menu Items Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        @foreach($menuItems as $item)
+        <?php $__currentLoopData = $menuItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="h-48 bg-gray-200 relative">
-                    @if($item->image)
-                        <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}" class="w-full h-full object-cover">
-                    @else
+                    <?php if($item->image): ?>
+                        <img src="<?php echo e(asset('storage/' . $item->image)); ?>" alt="<?php echo e($item->name); ?>" class="w-full h-full object-cover">
+                    <?php else: ?>
                         <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-400 to-purple-500">
                             <svg class="h-20 w-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
                         </div>
-                    @endif
-                    @if($item->is_featured)
+                    <?php endif; ?>
+                    <?php if($item->is_featured): ?>
                         <span class="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">
                             Featured
                         </span>
-                    @endif
+                    <?php endif; ?>
                 </div>
                 
                 <div class="p-4">
                     <div class="mb-2">
                         <span class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded">
-                            {{ $item->category->name }}
+                            <?php echo e($item->category->name); ?>
+
                         </span>
                     </div>
                     
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ $item->name }}</h3>
-                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ $item->description }}</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1"><?php echo e($item->name); ?></h3>
+                    <p class="text-sm text-gray-600 mb-3 line-clamp-2"><?php echo e($item->description); ?></p>
                     
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-2xl font-bold text-indigo-600">₹{{ number_format($item->price, 2) }}</span>
+                        <span class="text-2xl font-bold text-indigo-600">₹<?php echo e(number_format($item->price, 2)); ?></span>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $item->is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $item->is_available ? 'Available' : 'Unavailable' }}
+                            <?php echo e($item->is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
+                            <?php echo e($item->is_available ? 'Available' : 'Unavailable'); ?>
+
                         </span>
                     </div>
 
                     <div class="flex space-x-2">
-                        <a href="{{ route('menu-items.edit', $item) }}" 
+                        <a href="<?php echo e(route('menu-items.edit', $item)); ?>" 
                            class="flex-1 text-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded transition">
                             Edit
                         </a>
-                        <form id="delete-form-{{ $item->id }}" action="{{ route('menu-items.destroy', $item) }}" method="POST" class="flex-1">
-                            @csrf
-                            @method('DELETE')
-                            <button type="button" onclick="confirmDelete('delete-form-{{ $item->id }}', 'Are you sure you want to delete this item?')"
+                        <form id="delete-form-<?php echo e($item->id); ?>" action="<?php echo e(route('menu-items.destroy', $item)); ?>" method="POST" class="flex-1">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('DELETE'); ?>
+                            <button type="button" onclick="confirmDelete('delete-form-<?php echo e($item->id); ?>', 'Are you sure you want to delete this item?')"
                                     class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition">
                                 Delete
                             </button>
@@ -98,10 +99,10 @@
                     </div>
                 </div>
             </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
 
-    @if($menuItems->isEmpty())
+    <?php if($menuItems->isEmpty()): ?>
         <div class="bg-white rounded-lg shadow p-12 text-center">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -109,19 +110,20 @@
             <h3 class="mt-2 text-sm font-medium text-gray-900">No menu items</h3>
             <p class="mt-1 text-sm text-gray-500">Get started by creating a new menu item.</p>
             <div class="mt-6">
-                <a href="{{ route('menu-items.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                <a href="<?php echo e(route('menu-items.create')); ?>" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                     Add Menu Item
                 </a>
             </div>
         </div>
-    @endif
+    <?php endif; ?>
 
     <!-- Pagination -->
-    @if($menuItems->hasPages())
+    <?php if($menuItems->hasPages()): ?>
         <div class="mt-6">
-            {{ $menuItems->links() }}
+            <?php echo e($menuItems->links()); ?>
+
         </div>
-    @endif
+    <?php endif; ?>
 </div>
 
 <script>
@@ -167,4 +169,6 @@ document.getElementById('searchInput').addEventListener('input', function() {
     }
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/menu-items/index.blade.php ENDPATH**/ ?>
