@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Spatie\Permission\Models\Role;
-use Inertia\Inertia;
 
 class StaffController extends Controller
 {
     public function index()
     {
-        $staff = User::role(['waiter', 'manager'])
-            ->where('name', '!=', 'Staff User')
-            ->select('id', 'name', 'email', 'created_at')
-            ->with('roles')
-            ->latest()
-            ->get();
-
-        $roles = Role::whereIn('name', ['waiter', 'manager'])->get(['id', 'name']);
+        $staff = Employee::latest()->get();
+        
+        // Define roles for the dropdown (just labels now)
+        $roles = collect([
+            (object)['name' => 'waiter'],
+            (object)['name' => 'manager'],
+            (object)['name' => 'chef'],
+            (object)['name' => 'cleaner'],
+        ]);
 
         return view('staff.index', [
             'staff' => $staff,
@@ -32,33 +29,17 @@ class StaffController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'role' => 'required|in:waiter,manager',
+            'email' => 'nullable|string|email|max:255',
+            'role' => 'required|string|max:50',
         ]);
 
-        $password = Str::random(8);
-
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($password),
-        ]);
-
-        $user->assignRole($validated['role']);
-
-        // In a real application, you might want to email the user their password
-        // Mail::to($user)->send(new NewStaffAccount($user, $password));
+        Employee::create($validated);
 
         return back()->with('success', 'Staff member added successfully.');
     }
 
-    public function destroy(User $staff)
+    public function destroy(Employee $staff)
     {
-        // Prevent deleting the currently authenticated user
-        if ($staff->id === auth()->id()) {
-            return back()->with('error', 'You cannot delete your own account.');
-        }
-
         $staff->delete();
         return back()->with('success', 'Staff member deleted successfully.');
     }

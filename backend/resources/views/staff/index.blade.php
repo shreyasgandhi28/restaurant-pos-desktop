@@ -27,6 +27,16 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Add New Staff Member</h3>
                     <form action="{{ route('staff.store') }}" method="POST">
                         @csrf
+                        
+                        @if ($errors->any())
+                            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                                <ul class="list-disc list-inside">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
                                 <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
@@ -43,8 +53,9 @@
                                 <select id="role" name="role" required
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                     <option value="">Select Role</option>
-                                    <option value="waiter">Waiter</option>
-                                    <option value="manager">Manager</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -79,9 +90,8 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $member->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $member->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            {{ $member->getRoleNames()->first() === 'manager' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
-                                            {{ ucfirst($member->getRoleNames()->first()) }}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            {{ ucfirst($member->role) }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

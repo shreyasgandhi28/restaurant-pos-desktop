@@ -40,18 +40,7 @@ class RoleAndPermissionSeeder extends Seeder
             'manage settings',
         ]);
 
-        $managerRole = Role::findOrCreate('manager');
-        $managerRole->givePermissionTo([
-            'manage staff advances',
-            'manage tables',
-            'manage orders',
-            'manage bills',
-        ]);
-
-        $waiterRole = Role::findOrCreate('waiter');
-        $waiterRole->givePermissionTo([
-            'manage orders',
-        ]);
+        // Manager and Waiter roles removed to restrict system to Admin and Staff only
 
         $staffRole = Role::findOrCreate('staff');
         $staffRole->givePermissionTo([
