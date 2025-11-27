@@ -280,14 +280,15 @@
             display: block;
             line-height: 1;
         }
-
         .input-icon .fa-envelope {
-            transform: translateY(2px);
+            transform: translateY(1px);
         }
+
 
         .form-control {
             width: 100%;
-            padding: 0.8rem 0.95rem 0.8rem 2.5rem !important;
+            padding: 0 0.95rem 0 2.5rem !important;
+            line-height: 42px; /* 46px height - 4px total border */
             font-size: 0.9rem;
             border: 2px solid var(--border-color);
             border-radius: 0.7rem;
