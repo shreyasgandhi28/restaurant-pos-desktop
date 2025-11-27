@@ -81,7 +81,15 @@ class MenuItemController extends Controller
 
         $validated['slug'] = Str::slug($validated['name']);
         
-        if ($request->hasFile('image')) {
+        // Handle image removal
+        if ($request->input('remove_image') == '1') {
+            if ($menuItem->image) {
+                \Storage::disk('public')->delete($menuItem->image);
+                $validated['image'] = null;
+            }
+        }
+        // Handle image replacement
+        elseif ($request->hasFile('image')) {
             if ($menuItem->image) {
                 \Storage::disk('public')->delete($menuItem->image);
             }
