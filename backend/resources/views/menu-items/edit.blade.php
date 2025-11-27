@@ -100,12 +100,17 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Current Image
                         </label>
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-start gap-4">
                             <img src="{{ asset('storage/' . $menuItem->image) }}" 
                                  alt="{{ $menuItem->name }}" 
                                  class="w-32 h-32 object-cover rounded-lg border border-gray-300">
                             <div class="flex-1">
-                                <p class="text-sm text-gray-600">Upload a new image to replace the current one</p>
+                                <p class="text-sm text-gray-600 mb-3">Upload a new image to replace the current one</p>
+                                <button type="button" 
+                                        onclick="removeImage()"
+                                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition text-sm">
+                                    Remove Image
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -125,6 +130,9 @@
                     @error('image')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                    
+                    <!-- Hidden field to track image removal -->
+                    <input type="hidden" name="remove_image" id="remove_image" value="0">
                 </div>
 
                 <!-- Is Available -->
@@ -187,5 +195,26 @@
             <p><strong>Last Updated:</strong> {{ $menuItem->updated_at->format('M d, Y h:i A') }}</p>
         </div>
     </div>
+    
+    <!-- Hidden form for image removal -->
+    @if($menuItem->image)
+        <form id="remove-image-form" action="{{ route('menu-items.update', $menuItem) }}" method="POST" style="display: none;">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="category_id" value="{{ $menuItem->category_id }}">
+            <input type="hidden" name="name" value="{{ $menuItem->name }}">
+            <input type="hidden" name="description" value="{{ $menuItem->description }}">
+            <input type="hidden" name="price" value="{{ $menuItem->price }}">
+            <input type="hidden" name="is_available" value="{{ $menuItem->is_available ? '1' : '0' }}">
+            <input type="hidden" name="remove_image" value="1">
+        </form>
+    @endif
 </div>
+
+<script>
+function removeImage() {
+    // Use the same confirmation modal as delete operations
+    confirmDelete('remove-image-form', 'Are you sure you want to remove the current image?');
+}
+</script>
 @endsection
