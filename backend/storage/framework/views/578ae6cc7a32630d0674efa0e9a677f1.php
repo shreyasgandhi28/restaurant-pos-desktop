@@ -1,41 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Bill #{{ $bill->bill_number }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill #<?php echo e($bill->bill_number); ?></title>
     <style>
+        @font-face {
+            font-family: 'Noto Sans Devanagari';
+            font-style: normal;
+            font-weight: normal;
+            src: url('<?php echo e(asset('fonts/NotoSansDevanagari-Regular.ttf')); ?>') format('truetype');
+        }
+        @font-face {
+            font-family: 'Noto Sans Devanagari';
+            font-style: normal;
+            font-weight: bold;
+            src: url('<?php echo e(asset('fonts/NotoSansDevanagari-Bold.ttf')); ?>') format('truetype');
+        }
+
         @page {
             size: 80mm auto;
             margin: 0;
             padding: 0;
         }
         
-        @font-face {
-            font-family: 'Noto Sans Devanagari';
-            font-style: normal;
-            font-weight: normal;
-            src: url('{{ storage_path('fonts/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
-        }
-        @font-face {
-            font-family: 'Noto Sans Devanagari';
-            font-style: normal;
-            font-weight: bold;
-            src: url('{{ storage_path('fonts/NotoSansDevanagari-Bold.ttf') }}') format('truetype');
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Noto Sans Devanagari', 'DejaVu Sans', sans-serif;
+            font-family: 'Noto Sans Devanagari', 'Arial', 'Helvetica', sans-serif;
             line-height: 1.2;
         }
         
         body {
-            width: 76mm; /* Maximized width */
+            width: 76mm;
             margin: 0 auto;
             padding: 0;
-            padding-bottom: 2mm;
+            padding-bottom: 2mm; /* Reduced white space padding at the end */
             color: #000;
             font-size: 9px;
             -webkit-print-color-adjust: exact;
@@ -74,31 +75,31 @@
             margin: 2px 0 6px;
         }
         
-        .bill-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 9px;
-            margin: 4px 0;
-            padding-bottom: 4px;
-            border-bottom: 1px dashed #999;
+        .divider {
+            border-top: 1px dashed #999;
+            margin: 5px 0;
         }
         
         .bill-info {
             font-size: 9px;
+            margin: 2px 0;
+        }
+        
+        .bill-info-row {
             display: flex;
             justify-content: space-between;
-            margin: 2px 0 6px;
+            margin: 2px 0;
         }
         
         .items-table {
             width: 100%;
             border-collapse: collapse;
             margin: 5px 0;
-            page-break-inside: auto;
+            page-break-inside: auto; /* Allow items to break if list is very long */
         }
         
         .items-table tr {
-            page-break-inside: avoid;
+            page-break-inside: avoid; /* Don't break inside a row */
             page-break-after: auto;
         }
         
@@ -123,25 +124,29 @@
         
         .items-table .qty {
             width: 15%;
-            text-align: right;
-            padding-right: 10px;
+            text-align: center;
         }
         
         .items-table .price {
             width: 20%;
             text-align: right;
-            padding-right: 10px;
+            padding-right: 5px;
         }
         
         .items-table .total {
             width: 15%;
             text-align: right;
-            font-weight: bold;
+        }
+        
+        .totals-section {
+            margin: 10px 0;
+            border-top: 1px dashed #999;
+            padding-top: 5px;
+            page-break-inside: avoid; /* Keep totals together */
         }
         
         .totals-table {
             width: 100%;
-            margin: 8px 0;
             font-size: 9px;
             page-break-inside: avoid;
         }
@@ -156,7 +161,6 @@
         
         .totals-table .amount {
             text-align: right;
-            font-weight: bold;
         }
         
         .grand-total {
@@ -168,6 +172,18 @@
             margin: 5px 0;
         }
         
+        .payment-section {
+            margin: 10px 0;
+            padding: 5px 0;
+            border-top: 1px dashed #999;
+        }
+        
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+        }
+        
         .footer {
             text-align: center;
             font-size: 9px;
@@ -177,15 +193,45 @@
             border-top: 1px dashed #999;
         }
         
-        .thank-you {
-            text-align: center;
-            font-size: 9px;
-            margin: 5px 0;
-            font-style: italic;
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
 <body>
-    @include('bills.partials.receipt')
+    <?php
+        $settings = \App\Models\Setting::all()->keyBy('key')->map(function($item) {
+            return $item->value;
+        });
+        
+        $bill->load(['order.orderItems.menuItem', 'order.restaurantTable']);
+        
+        $taxRate = $bill->order->tax_rate;
+        $serviceChargeRate = $bill->order->service_charge_rate;
+        $taxAmount = $bill->subtotal * ($taxRate / 100);
+        $serviceCharge = $bill->subtotal * ($serviceChargeRate / 100);
+        $newTotal = $bill->subtotal + $taxAmount + $serviceCharge - $bill->discount_amount;
+        $totalQuantity = $bill->order->orderItems->sum('quantity');
+    ?>
+
+    <?php echo $__env->make('bills.partials.receipt', [
+        'bill' => $bill,
+        'settings' => $settings,
+        'taxRate' => $taxRate,
+        'taxAmount' => $taxAmount,
+        'serviceChargeRate' => $serviceChargeRate,
+        'serviceCharge' => $serviceCharge,
+        'newTotal' => $newTotal
+    ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </body>
 </html>
+<?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/bills/print.blade.php ENDPATH**/ ?>

@@ -850,11 +850,19 @@ function openKOTPrintWindow(kot) {
         <head>
             <title>KOT - ${kot.kot_number}</title>
             <style>
-                body { font-family: monospace; padding: 10px; }
+                @page { size: 80mm auto; margin: 0; }
+                body { 
+                    font-family: monospace; 
+                    width: 76mm; 
+                    margin: 0 auto; 
+                    padding: 0; 
+                    padding-bottom: 2mm; 
+                }
                 .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
-                .info { margin-bottom: 10px; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { padding: 5px; text-align: left; border-bottom: 1px solid #ddd; }
+                .info { margin-bottom: 10px; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; font-size: 12px; page-break-inside: auto; }
+                tr { page-break-inside: avoid; page-break-after: auto; }
+                th, td { padding: 5px 2px; text-align: left; border-bottom: 1px solid #ddd; }
                 @media print { button { display: none; } }
             </style>
         </head>
