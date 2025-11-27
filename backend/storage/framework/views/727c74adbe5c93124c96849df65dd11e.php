@@ -853,22 +853,27 @@ function openKOTPrintWindow(kot) {
                 @page { size: 80mm auto; margin: 0; }
                 body { 
                     font-family: monospace; 
-                    width: 76mm; 
+                    width: 70mm; 
                     margin: 0 auto; 
-                    padding: 0; 
-                    padding-bottom: 2mm; 
+                    padding: 10px; 
+                    padding-bottom: 2mm;
+                    color: #000;
+                    font-weight: bold;
+                    font-size: 12px;
                 }
                 .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
                 .info { margin-bottom: 10px; font-size: 12px; }
                 table { width: 100%; border-collapse: collapse; font-size: 12px; page-break-inside: auto; }
                 tr { page-break-inside: avoid; page-break-after: auto; }
-                th, td { padding: 5px 2px; text-align: left; border-bottom: 1px solid #ddd; }
-                @media print { button { display: none; } }
+                th, td { padding: 5px 2px; text-align: left; border-bottom: 1px solid #000; color: #000; }
+                @media print { 
+                    button { display: none; }
+                    * { color: #000 !important; font-weight: bold !important; }
+                }
             </style>
         </head>
         <body>
             <div class="header">
-                <h1>KITCHEN ORDER TICKET</h1>
                 <h2>${kot.kot_number}</h2>
             </div>
             <div class="info">
