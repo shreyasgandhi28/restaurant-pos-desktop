@@ -473,20 +473,20 @@ function openKOTPrintWindow(kot) {
         <head>
             <title>KOT - ${kot.kot_number}</title>
             <style>
-                body { font-family: monospace; padding: 10px; }
+                body { font-family: monospace; padding: 10px; color: #000; font-weight: bold; font-size: 12px; width: 70mm; margin: 0 auto; }
                 .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
                 .info { margin-bottom: 10px; }
                 table { width: 100%; border-collapse: collapse; }
-                th, td { padding: 5px; text-align: left; border-bottom: 1px solid #ddd; }
+                th, td { padding: 5px; text-align: left; border-bottom: 1px solid #000; color: #000; }
                 .qty { font-weight: bold; }
                 @media print {
                     button { display: none; }
+                    * { color: #000 !important; font-weight: bold !important; }
                 }
             </style>
         </head>
         <body>
             <div class="header">
-                <h1>KITCHEN ORDER TICKET</h1>
                 <h2>${kot.kot_number}</h2>
             </div>
             <div class="info">

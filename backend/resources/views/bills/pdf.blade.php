@@ -32,12 +32,13 @@
         }
         
         body {
-            width: 76mm; /* Maximized width */
+            width: 65mm; /* Maximized width */
             margin: 0 auto;
             padding: 0;
             padding-bottom: 2mm;
             color: #000;
-            font-size: 9px;
+            font-size: 12px;
+            font-weight: bold;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
@@ -49,7 +50,7 @@
         }
         
         .restaurant-name {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: bold;
             margin-bottom: 2px;
             text-transform: uppercase;
@@ -57,34 +58,34 @@
         }
         
         .address {
-            font-size: 9px;
+            font-size: 12px;
             margin: 2px 0;
-            color: #333;
+            color: #000;
         }
         
         .contact {
-            font-size: 9px;
-            color: #333;
+            font-size: 12px;
+            color: #000;
             margin: 2px 0;
         }
         
         .gst {
-            font-size: 9px;
-            color: #333;
+            font-size: 12px;
+            color: #000;
             margin: 2px 0 6px;
         }
         
         .bill-header {
             display: flex;
             justify-content: space-between;
-            font-size: 9px;
+            font-size: 12px;
             margin: 4px 0;
             padding-bottom: 4px;
-            border-bottom: 1px dashed #999;
+            border-bottom: 1px dashed #000;
         }
         
         .bill-info {
-            font-size: 9px;
+            font-size: 12px;
             display: flex;
             justify-content: space-between;
             margin: 2px 0 6px;
@@ -107,42 +108,44 @@
             padding: 3px 0;
             border-bottom: 1px solid #000;
             font-weight: bold;
-            font-size: 9px;
+            font-size: 12px;
         }
         
         .items-table td {
-            padding: 4px 0;
+            padding: 2px 0;
             vertical-align: top;
-            font-size: 9px;
+            font-size: 12px;
         }
         
         .items-table .item-name {
-            width: 50%;
-            padding-right: 5px;
+            width: 44%;
+            padding-right: 0;
         }
         
         .items-table .qty {
-            width: 15%;
+            width: 8%;
             text-align: right;
             padding-right: 10px;
         }
         
         .items-table .price {
-            width: 20%;
+            width: 22%;
             text-align: right;
-            padding-right: 10px;
+            padding-right: 0;
         }
         
         .items-table .total {
-            width: 15%;
+            width: 26%;
             text-align: right;
             font-weight: bold;
+            padding-right: 0;
+            padding-left: 15px;
         }
         
         .totals-table {
             width: 100%;
             margin: 8px 0;
-            font-size: 9px;
+            font-size: 12px;
             page-break-inside: avoid;
         }
         
@@ -161,7 +164,7 @@
         
         .grand-total {
             font-weight: bold;
-            font-size: 11px;
+            font-size: 14px;
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
             padding: 3px 0;
@@ -170,16 +173,16 @@
         
         .footer {
             text-align: center;
-            font-size: 9px;
-            color: #666;
+            font-size: 12px;
+            color: #000;
             margin-top: 10px;
             padding-top: 5px;
-            border-top: 1px dashed #999;
+            border-top: 1px dashed #000;
         }
         
         .thank-you {
             text-align: center;
-            font-size: 9px;
+            font-size: 12px;
             margin: 5px 0;
             font-style: italic;
         }

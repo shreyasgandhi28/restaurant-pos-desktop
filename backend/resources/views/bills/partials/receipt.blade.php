@@ -20,23 +20,23 @@
     @endif
 </div>
 
-<div style="border-top: 1px dashed #999; margin: 5px 0;"></div>
+<div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
 
 <!-- Bill Info -->
-<div style="font-size: 9px; margin: 3px 0;">
+<div style="font-size: 12px; margin: 3px 0;">
     <div>Table: {{ $bill->order->restaurantTable->table_number }}</div>
 </div>
-<div style="font-size: 9px; margin: 3px 0;">
+<div style="font-size: 12px; margin: 3px 0;">
     <div>Bill No: {{ $bill->bill_number }}</div>
 </div>
-<div style="font-size: 9px; margin: 3px 0;">
+<div style="font-size: 12px; margin: 3px 0;">
     <div>Date: {{ $bill->created_at->format('d/m/Y h:i A') }}</div>
 </div>
-<div style="font-size: 9px; margin: 3px 0 5px;">
+<div style="font-size: 12px; margin: 3px 0 5px;">
     <div>Status: <span style="text-transform: uppercase;">{{ $bill->status }}</span></div>
 </div>
 
-<div style="border-top: 1px dashed #999; margin: 5px 0;"></div>
+<div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
 
 <!-- Items Table -->
 <table class="items-table">
@@ -54,7 +54,7 @@
                 <td style="text-align: left; padding: 4px 0;">
                     {{ $item->menuItem->name }}
                     @if($item->notes)
-                        <div style="font-size: 8px; color: #666; font-style: italic;">
+                        <div style="font-size: 9px; color: #000; font-style: italic; font-weight: bold;">
                             {{ $item->notes }}
                         </div>
                     @endif
@@ -67,10 +67,10 @@
     </tbody>
 </table>
 
-<div style="border-top: 1px dashed #999; margin: 5px 0;"></div>
+<div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
 
 <!-- Totals -->
-<table style="width: 100%; font-size: 9px; margin: 5px 0;">
+<table style="width: 100%; font-size: 12px; margin: 5px 0;">
     <tr>
         <td style="text-align: left; padding: 2px 0;">Sub Total:</td>
         <td style="text-align: right; padding: 2px 0;">₹{{ number_format($bill->subtotal, 2) }}</td>
@@ -97,7 +97,7 @@
     @php
         $totalQuantity = $bill->order->orderItems->sum('quantity');
     @endphp
-    <tr style="border-top: 1px solid #000; border-bottom: 1px solid #000; font-weight: bold; font-size: 10px;">
+    <tr style="border-top: 1px solid #000; border-bottom: 1px solid #000; font-weight: bold; font-size: 14px;">
         <td style="padding: 4px 0; text-align: left;">
             TOTAL ({{ $totalQuantity }} items)
         </td>
@@ -107,10 +107,10 @@
     </tr>
 </table>
 
-<div style="border-top: 1px dashed #999; margin: 5px 0;"></div>
+<div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
 
 <!-- Payment Info -->
-<div style="font-size: 9px; margin: 5px 0;">
+<div style="font-size: 12px; margin: 5px 0;">
     <div style="display: flex; justify-content: space-between; margin: 3px 0;">
         <span>Payment Method:</span>
         <span style="font-weight: bold;">{{ strtoupper($bill->payment_method ?? 'CASH') }}</span>
