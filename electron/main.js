@@ -208,7 +208,8 @@ async function firstRunInit() {
 function startPhpServer(packagedBackend) {
   const phpBin = getPhpBinary();
   if (!fs.existsSync(phpBin)) {
-    dialog.showErrorBox('Startup Error', `Bundled PHP not found: ${phpBin}`);
+    const errorMsg = `Bundled PHP not found at: ${phpBin}\n\nPlease try:\n1. Running as Administrator\n2. Temporarily disabling antivirus\n3. Reinstalling the application`;
+    dialog.showErrorBox('Startup Error', errorMsg);
     app.quit();
     return;
   }
@@ -216,14 +217,47 @@ function startPhpServer(packagedBackend) {
   const publicDir = path.join(packagedBackend, 'public');
   const routerScript = path.join(packagedBackend, 'router.php');
 
+  // Create log file for debugging
+  const logDir = app.getPath('userData');
+  const logFile = path.join(logDir, 'php-server.log');
+  const logStream = fs.createWriteStream(logFile, { flags: 'a' });
+
+  logStream.write(`\n\n=== PHP Server Start: ${new Date().toISOString()} ===\n`);
+  logStream.write(`PHP Binary: ${phpBin}\n`);
+  logStream.write(`Backend Dir: ${packagedBackend}\n`);
+  logStream.write(`Public Dir: ${publicDir}\n`);
+  logStream.write(`Router Script: ${routerScript}\n\n`);
+
   phpProcess = spawn(phpBin, ['-S', '127.0.0.1:8000', '-t', publicDir, routerScript], {
     cwd: packagedBackend,
     env: Object.assign({}, process.env, { APP_ENV: 'production' }),
     windowsHide: true
   });
 
-  phpProcess.stdout.on('data', d => console.log('[PHP]', d.toString()));
-  phpProcess.stderr.on('data', d => console.error('[PHP ERR]', d.toString()));
+  phpProcess.stdout.on('data', d => {
+    const msg = d.toString();
+    console.log('[PHP]', msg);
+    logStream.write('[STDOUT] ' + msg);
+  });
+
+  phpProcess.stderr.on('data', d => {
+    const msg = d.toString();
+    console.error('[PHP ERR]', msg);
+    logStream.write('[STDERR] ' + msg);
+  });
+
+  phpProcess.on('error', (err) => {
+    const msg = `PHP Process Error: ${err.message}\n`;
+    console.error(msg);
+    logStream.write(msg);
+  });
+
+  phpProcess.on('exit', (code, signal) => {
+    const msg = `PHP Process exited with code ${code}, signal ${signal}\n`;
+    console.log(msg);
+    logStream.write(msg);
+    logStream.end();
+  });
 }
 
 function createWindow() {
@@ -250,22 +284,36 @@ app.whenReady().then(async () => {
     const { packagedBackend } = await firstRunInit();
     startPhpServer(packagedBackend);
 
-    // Poll for server
-    const max = 30;
+    // Poll for server - increased timeout for first-run and slower machines
+    const max = 120; // 60 seconds total (120 × 500ms)
     let i = 0;
     const wait = ms => new Promise(r => setTimeout(r, ms));
+    let lastError = null;
+
     while (i < max) {
       try {
         await axios.get('http://127.0.0.1:8000', { timeout: 2000 });
         break;
       } catch (e) {
+        lastError = e;
         await wait(500);
         i++;
       }
     }
 
     if (i === max) {
-      throw new Error('Local server did not start in time.');
+      const logFile = path.join(app.getPath('userData'), 'php-server.log');
+      const errorDetails = lastError ? `\n\nLast error: ${lastError.message}` : '';
+      const troubleshooting = `
+Troubleshooting steps:
+1. Check if port 8000 is available (close other apps)
+2. Temporarily disable antivirus/Windows Defender
+3. Run as Administrator
+4. Check log file at: ${logFile}
+
+If problem persists, send the log file to support.`;
+
+      throw new Error(`Local server did not start in time.${errorDetails}\n${troubleshooting}`);
     }
 
     createWindow();
