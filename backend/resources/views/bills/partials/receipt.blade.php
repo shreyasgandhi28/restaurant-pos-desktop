@@ -42,14 +42,14 @@
 <table class="items-table">
     <thead>
         <tr>
-            <th style="text-align: left; width: 50%;">ITEM</th>
-            <th style="text-align: center; width: 15%;">QTY</th>
+            <th style="text-align: left; width: 45%;">ITEM</th>
+            <th style="text-align: center; width: 10%;">QTY</th>
             <th style="text-align: right; width: 20%;">RATE</th>
-            <th style="text-align: right; width: 15%;">TOTAL</th>
+            <th style="text-align: right; width: 25%;">TOTAL</th>
         </tr>
     </thead>
     <tbody>
-        @foreach($bill->order->orderItems as $item)
+        @foreach($items as $item)
             <tr>
                 <td style="text-align: left; padding: 4px 0;">
                     {{ $item->menuItem->name }}
@@ -95,7 +95,7 @@
     @endif
     
     @php
-        $totalQuantity = $bill->order->orderItems->sum('quantity');
+        $totalQuantity = $items->sum('quantity');
     @endphp
     <tr style="border-top: 1px solid #000; border-bottom: 1px solid #000; font-weight: bold; font-size: 14px;">
         <td style="padding: 4px 0; text-align: left;">
@@ -111,18 +111,14 @@
 
 <!-- Payment Info -->
 <div style="font-size: 12px; margin: 5px 0;">
-    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+    <div style="margin: 3px 0;">
         <span>Payment Method:</span>
-        <span style="font-weight: bold;">{{ strtoupper($bill->payment_method ?? 'CASH') }}</span>
-    </div>
-    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
-        <span>Amount Paid:</span>
-        <span style="font-weight: bold;">₹{{ $bill->status === 'paid' ? number_format($bill->total_amount, 2) : '0.00' }}</span>
+        <span style="font-weight: bold; margin-left: 5px;">{{ strtoupper($bill->payment_method ?? 'CASH') }}</span>
     </div>
     @if($bill->paid_at)
-        <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+        <div style="margin: 3px 0;">
             <span>Paid At:</span>
-            <span>{{ $bill->paid_at->format('d/m/Y h:i A') }}</span>
+            <span style="margin-left: 5px;">{{ $bill->paid_at->format('d/m/Y h:i A') }}</span>
         </div>
     @endif
 </div>

@@ -176,7 +176,13 @@ class BillController extends Controller
 
     public function print(Bill $bill)
     {
-        return view('bills.print', ['bill' => $bill]);
+        $bill->load(['order.orderItems.menuItem', 'order.restaurantTable']);
+        $items = $this->aggregateBillItems($bill);
+        
+        return view('bills.print', [
+            'bill' => $bill,
+            'items' => $items
+        ]);
     }
 
     public function preview(Bill $bill)
@@ -206,9 +212,12 @@ class BillController extends Controller
         $taxAmount = $bill->subtotal * ($taxRate / 100);
         $serviceCharge = $bill->subtotal * ($serviceChargeRate / 100);
         $newTotal = $bill->subtotal + $taxAmount + $serviceCharge - $bill->discount_amount;
+        
+        $items = $this->aggregateBillItems($bill);
 
         return [
             'bill' => $bill,
+            'items' => $items,
             'settings' => $settings,
             'taxRate' => $taxRate,
             'taxAmount' => $taxAmount,
@@ -232,5 +241,35 @@ class BillController extends Controller
             ->setOption('fontCache', storage_path('fonts'))
             ->setOption('defaultMediaType', 'print')
             ->setOption('dpi', 96);
+    }
+
+    /**
+     * Aggregate bill items by menu item, price, and notes.
+     *
+     * @param Bill $bill
+     * @return \Illuminate\Support\Collection
+     */
+    private function aggregateBillItems(Bill $bill)
+    {
+        return $bill->order->orderItems
+            ->groupBy(function ($item) {
+                // Group by menu item ID, price, and notes to ensure identical items are merged
+                return $item->menu_item_id . '-' . $item->unit_price . '-' . ($item->notes ?? '');
+            })
+            ->map(function ($group) {
+                $firstItem = $group->first();
+                
+                // Create a new object or array with aggregated data
+                // We'll use a standard object to mimic the structure needed in the view
+                $aggregatedItem = new \stdClass();
+                $aggregatedItem->menuItem = $firstItem->menuItem;
+                $aggregatedItem->quantity = $group->sum('quantity');
+                $aggregatedItem->unit_price = $firstItem->unit_price;
+                $aggregatedItem->total_price = $group->sum('total_price');
+                $aggregatedItem->notes = $firstItem->notes;
+                
+                return $aggregatedItem;
+            })
+            ->values();
     }
 }
