@@ -135,6 +135,14 @@ async function firstRunInit() {
         await fs.ensureFile(targetDb);
       }
     }
+
+    // Ensure public/storage symlink is removed so Laravel route handles it
+    const symlinkPath = path.join(runtimeBackend, 'public', 'storage');
+    try {
+      if (fs.existsSync(symlinkPath) || fs.lstatSync(symlinkPath).isSymbolicLink()) {
+        await fs.remove(symlinkPath);
+      }
+    } catch (e) { }
   }
 
   // -------------------------------------------------------------------------
@@ -206,8 +214,9 @@ function startPhpServer(packagedBackend) {
   }
 
   const publicDir = path.join(packagedBackend, 'public');
+  const routerScript = path.join(packagedBackend, 'router.php');
 
-  phpProcess = spawn(phpBin, ['-S', '127.0.0.1:8000', '-t', publicDir], {
+  phpProcess = spawn(phpBin, ['-S', '127.0.0.1:8000', '-t', publicDir, routerScript], {
     cwd: packagedBackend,
     env: Object.assign({}, process.env, { APP_ENV: 'production' }),
     windowsHide: true
