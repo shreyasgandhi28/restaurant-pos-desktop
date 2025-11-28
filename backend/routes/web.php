@@ -12,6 +12,20 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StaffSalaryAdvanceController;
 use App\Http\Controllers\UserController;
 
+
+
+// Fallback route to serve storage files directly if symlink is missing
+Route::get('storage/{folder}/{filename}', function ($folder, $filename) {
+    $path = $folder . '/' . $filename;
+    $filePath = storage_path('app/public/' . $path);
+    
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+    
+    return response()->file($filePath);
+});
+
 Route::get('/', function () {
     try {
         return redirect()->route('login');
@@ -24,6 +38,8 @@ Route::get('/', function () {
 Route::get('/test', function () {
     return response('Server is working!', 200);
 });
+
+
 
 // Public signed route for printing bills
 Route::get('bills/{bill}/print', [BillController::class, 'print'])

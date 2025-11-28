@@ -1,7 +1,7 @@
 {
   "name": "restaurant-pos-desktop",
   "productName": "Restaurant POS",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Restaurant POS - offline desktop point-of-sale",
   "author": "Your Name <you@example.com>",
   "main": "main.js",
