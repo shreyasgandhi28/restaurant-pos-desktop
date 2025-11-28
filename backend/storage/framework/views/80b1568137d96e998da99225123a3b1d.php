@@ -1,26 +1,24 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Bill Details'); ?>
 
-@section('title', 'Bill Details')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6 flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Bill #{{ $bill->bill_number }}</h1>
-            <p class="text-gray-600">Order #{{ $bill->order->order_number }}</p>
+            <h1 class="text-3xl font-bold text-gray-900">Bill #<?php echo e($bill->bill_number); ?></h1>
+            <p class="text-gray-600">Order #<?php echo e($bill->order->order_number); ?></p>
         </div>
         <div class="flex space-x-2">
             <a href="javascript:void(0)" 
-               onclick="openBillPrintWindow('{{ URL::signedRoute('bills.print', $bill) }}')"
+               onclick="openBillPrintWindow('<?php echo e(URL::signedRoute('bills.print', $bill)); ?>')"
                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                 Print
             </a>
-            <a href="{{ route('bills.download', $bill) }}"
+            <a href="<?php echo e(route('bills.download', $bill)); ?>"
                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                title="Download PDF">
                 Download
             </a>
-            <a href="{{ route('orders.index') }}" 
+            <a href="<?php echo e(route('orders.index')); ?>" 
                class="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-4 rounded hover:bg-gray-50">
                 Back
             </a>
@@ -40,19 +38,19 @@
             <div class="grid grid-cols-2 gap-6">
                 <div>
                     <p class="text-sm text-gray-600">Bill Number</p>
-                    <p class="font-semibold">{{ $bill->bill_number }}</p>
+                    <p class="font-semibold"><?php echo e($bill->bill_number); ?></p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-600">Order Number</p>
-                    <p class="font-semibold">{{ $bill->order->order_number }}</p>
+                    <p class="font-semibold"><?php echo e($bill->order->order_number); ?></p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-600">Table</p>
-                    <p class="font-semibold">{{ $bill->order->restaurantTable->table_number }}</p>
+                    <p class="font-semibold"><?php echo e($bill->order->restaurantTable->table_number); ?></p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-600">Date</p>
-                    <p class="font-semibold">{{ $bill->created_at->format('M d, Y h:i A') }}</p>
+                    <p class="font-semibold"><?php echo e($bill->created_at->format('M d, Y h:i A')); ?></p>
                 </div>
             </div>
         </div>
@@ -71,32 +69,33 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($bill->order->orderItems as $item)
-                        <tr class="border-b {{ $item->status === 'cancelled' ? 'bg-red-50' : '' }}">
-                            <td class="py-3">{{ $item->menuItem->name }}</td>
-                            <td class="text-center py-3">{{ $item->quantity }}</td>
+                    <?php $__currentLoopData = $bill->order->orderItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <tr class="border-b <?php echo e($item->status === 'cancelled' ? 'bg-red-50' : ''); ?>">
+                            <td class="py-3"><?php echo e($item->menuItem->name); ?></td>
+                            <td class="text-center py-3"><?php echo e($item->quantity); ?></td>
                             <td class="text-center py-3">
-                                @if($item->status === 'cancelled')
+                                <?php if($item->status === 'cancelled'): ?>
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                         Cancelled
                                     </span>
-                                @else
+                                <?php else: ?>
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        {{ ucfirst($item->status) }}
+                                        <?php echo e(ucfirst($item->status)); ?>
+
                                     </span>
-                                @endif
+                                <?php endif; ?>
                             </td>
-                            <td class="text-right py-3">₹{{ number_format($item->unit_price, 2) }}</td>
+                            <td class="text-right py-3">₹<?php echo e(number_format($item->unit_price, 2)); ?></td>
                             <td class="text-right py-3">
-                                @if($item->status === 'cancelled')
+                                <?php if($item->status === 'cancelled'): ?>
                                     <span class="text-red-600 font-semibold">₹0.00</span>
                                     <div class="text-xs text-red-600">(Cancelled)</div>
-                                @else
-                                    <span class="font-semibold">₹{{ number_format($item->total_price, 2) }}</span>
-                                @endif
+                                <?php else: ?>
+                                    <span class="font-semibold">₹<?php echo e(number_format($item->total_price, 2)); ?></span>
+                                <?php endif; ?>
                             </td>
                         </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
@@ -106,46 +105,46 @@
             <div class="max-w-sm ml-auto space-y-2">
                 <div class="flex justify-between">
                     <span class="text-gray-600">Subtotal:</span>
-                    <span class="font-semibold">₹{{ number_format($bill->subtotal, 2) }}</span>
+                    <span class="font-semibold">₹<?php echo e(number_format($bill->subtotal, 2)); ?></span>
                 </div>
-                @if($taxAmount > 0)
+                <?php if($taxAmount > 0): ?>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">CGST ({{ $taxRate / 2 }}%):</span>
-                        <span class="font-semibold">₹{{ number_format($taxAmount / 2, 2) }}</span>
+                        <span class="text-gray-600">CGST (<?php echo e($taxRate / 2); ?>%):</span>
+                        <span class="font-semibold">₹<?php echo e(number_format($taxAmount / 2, 2)); ?></span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">SGST ({{ $taxRate / 2 }}%):</span>
-                        <span class="font-semibold">₹{{ number_format($taxAmount / 2, 2) }}</span>
+                        <span class="text-gray-600">SGST (<?php echo e($taxRate / 2); ?>%):</span>
+                        <span class="font-semibold">₹<?php echo e(number_format($taxAmount / 2, 2)); ?></span>
                     </div>
-                @endif
-                @if($serviceCharge > 0)
+                <?php endif; ?>
+                <?php if($serviceCharge > 0): ?>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Service Charge ({{ $serviceChargeRate }}%):</span>
-                        <span class="font-semibold">₹{{ number_format($serviceCharge, 2) }}</span>
+                        <span class="text-gray-600">Service Charge (<?php echo e($serviceChargeRate); ?>%):</span>
+                        <span class="font-semibold">₹<?php echo e(number_format($serviceCharge, 2)); ?></span>
                     </div>
-                @endif
-                @if($bill->discount_amount > 0)
+                <?php endif; ?>
+                <?php if($bill->discount_amount > 0): ?>
                     <div class="flex justify-between text-green-600">
-                        <span>Discount ({{ $bill->discount_percentage }}%):</span>
-                        <span class="font-semibold">-₹{{ number_format($bill->discount_amount, 2) }}</span>
+                        <span>Discount (<?php echo e($bill->discount_percentage); ?>%):</span>
+                        <span class="font-semibold">-₹<?php echo e(number_format($bill->discount_amount, 2)); ?></span>
                     </div>
-                @endif
+                <?php endif; ?>
                 <div class="flex justify-between text-xl font-bold pt-2 border-t-2">
                     <span>Total Amount:</span>
-                    <span class="text-indigo-600">₹{{ number_format($newTotal, 2) }}</span>
+                    <span class="text-indigo-600">₹<?php echo e(number_format($newTotal, 2)); ?></span>
                 </div>
             </div>
 
-            @php
+            <?php
                 $cancelledItems = $bill->order->orderItems->where('status', 'cancelled')->count();
-            @endphp
-            @if($cancelledItems > 0)
+            ?>
+            <?php if($cancelledItems > 0): ?>
                 <div class="mt-6 p-3 bg-red-50 border border-red-200 rounded-lg">
                     <p class="text-sm text-red-800">
-                        <strong>Note:</strong> {{ $cancelledItems }} item{{ $cancelledItems > 1 ? 's' : '' }} {{ $cancelledItems > 1 ? 'were' : 'was' }} cancelled and {{ $cancelledItems > 1 ? 'are' : 'is' }} not included in the total amount.
+                        <strong>Note:</strong> <?php echo e($cancelledItems); ?> item<?php echo e($cancelledItems > 1 ? 's' : ''); ?> <?php echo e($cancelledItems > 1 ? 'were' : 'was'); ?> cancelled and <?php echo e($cancelledItems > 1 ? 'are' : 'is'); ?> not included in the total amount.
                     </p>
                 </div>
-            @endif
+            <?php endif; ?>
         </div>
 
         <!-- Payment Status -->
@@ -154,31 +153,32 @@
                 <div>
                     <p class="text-sm text-gray-600">Payment Status</p>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                        {{ $bill->status == 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                        {{ ucfirst($bill->status) }}
+                        <?php echo e($bill->status == 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'); ?>">
+                        <?php echo e(ucfirst($bill->status)); ?>
+
                     </span>
                 </div>
-                @if($bill->payment_method)
+                <?php if($bill->payment_method): ?>
                     <div>
                         <p class="text-sm text-gray-600">Payment Method</p>
-                        <p class="font-semibold">{{ strtoupper($bill->payment_method) }}</p>
+                        <p class="font-semibold"><?php echo e(strtoupper($bill->payment_method)); ?></p>
                     </div>
-                @endif
-                @if($bill->paid_at)
+                <?php endif; ?>
+                <?php if($bill->paid_at): ?>
                     <div>
                         <p class="text-sm text-gray-600">Paid At</p>
-                        <p class="font-semibold">{{ $bill->paid_at->format('M d, Y H:i') }}</p>
+                        <p class="font-semibold"><?php echo e($bill->paid_at->format('M d, Y H:i')); ?></p>
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
 
         <!-- Payment Form -->
-        @if($bill->status === 'pending')
+        <?php if($bill->status === 'pending'): ?>
             <div class="p-6 bg-gray-50 border-t">
-                <form action="{{ route('bills.update', $bill) }}" method="POST">
-                    @csrf
-                    @method('PUT')
+                <form action="<?php echo e(route('bills.update', $bill)); ?>" method="POST">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PUT'); ?>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Payment Method Toggle -->
@@ -280,7 +280,7 @@
                     </div>
                 </form>
             </div>
-        @endif
+        <?php endif; ?>
 
         <!-- Thank You Message -->
         <div class="p-6 bg-gray-50 border-t text-center">
@@ -325,4 +325,6 @@
         }
     }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/bills/show.blade.php ENDPATH**/ ?>

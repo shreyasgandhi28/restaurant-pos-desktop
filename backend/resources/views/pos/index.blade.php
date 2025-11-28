@@ -838,8 +838,8 @@ function openKOTPrintWindow(kot) {
     kot.order_items.forEach(item => {
         itemsHtml += `
             <tr>
-                <td style="font-weight: bold; font-size: 1.2em;">${item.quantity}</td>
                 <td>${item.menu_item.name}</td>
+                <td style="font-weight: bold; font-size: 1.2em;">${item.quantity}</td>
                 <td>${item.special_instructions || '-'}</td>
             </tr>
         `;
@@ -884,8 +884,8 @@ function openKOTPrintWindow(kot) {
             <table>
                 <thead>
                     <tr>
-                        <th>Qty</th>
                         <th>Item</th>
+                        <th>Qty</th>
                         <th>Instructions</th>
                     </tr>
                 </thead>
