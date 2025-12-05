@@ -14,18 +14,6 @@ use App\Http\Controllers\UserController;
 
 
 
-// Fallback route to serve storage files directly if symlink is missing
-Route::get('storage/{folder}/{filename}', function ($folder, $filename) {
-    $path = $folder . '/' . $filename;
-    $filePath = storage_path('app/public/' . $path);
-    
-    if (!file_exists($filePath)) {
-        abort(404);
-    }
-    
-    return response()->file($filePath);
-});
-
 Route::get('/', function () {
     try {
         return redirect()->route('login');
