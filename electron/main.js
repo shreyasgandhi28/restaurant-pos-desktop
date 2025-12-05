@@ -48,32 +48,63 @@ function runPhpArtisan(argsArray, cwd) {
 /**
  * FIRST-RUN INIT & UPDATE LOGIC
  */
+/**
+ * FIRST-RUN INIT & UPDATE LOGIC
+ */
 async function firstRunInit() {
   let runtimeBackend;
   let targetDb;
   let userDataDir;
+  let userContentDir;
 
   // -------------------------------------------------------------------------
-  // 1. PATH RESOLUTION (Dev vs Prod)
+  // 0. DEFINE PORTS & PREPARE USER CONTENT DIR
   // -------------------------------------------------------------------------
+  // We use a separate persistent directory for user uploads (images)
+  // so they are strictly separated from the application bundle and updates.
+  const appData = app.getPath('appData');
+  userDataDir = path.join(appData, 'RestaurantPOS'); // Standardize for both modes if possible, but keep existing logic below
+
   if (!isPackaged()) {
+    // DEV MODE
     console.log('Running in DEV MODE');
     runtimeBackend = path.join(__dirname, '..', 'backend');
-    userDataDir = app.getPath('userData'); // Still use UserData for consistency if needed, but we use local backend
 
-    // In Dev, DB is in the backend folder
+    // In dev, we can keep user content in the backend folder or valid temp. 
+    // To mimic prod, let's point to a local writable folder or just keep using standard storage.
+    // However, to test the "external path" logic, we'll define it:
+    userContentDir = path.join(userDataDir, 'user_content_dev');
+
     targetDb = path.join(runtimeBackend, 'database', 'database.sqlite');
-
-    // Ensure DB exists for dev
     if (!await fs.pathExists(targetDb)) {
       await fs.ensureFile(targetDb);
     }
 
+    // Create junction for dev mode too
+    const publicStoragePath = path.join(runtimeBackend, 'public', 'storage');
+    try {
+      if (await fs.pathExists(publicStoragePath)) {
+        await fs.remove(publicStoragePath);
+      }
+      const { exec } = require('child_process');
+      const junctionCmd = `cmd /c mklink /J "${publicStoragePath}" "${userContentDir}"`;
+      await new Promise((resolve) => {
+        exec(junctionCmd, (error) => {
+          if (error) console.error('Dev junction warning:', error);
+          resolve();
+        });
+      });
+    } catch (e) {
+      console.error('Dev storage junction warning:', e);
+    }
+
   } else {
     // PRODUCTION MODE
-    const appData = app.getPath('appData');
-    userDataDir = path.join(appData, 'RestaurantPOS');
+    // userDataDir is already defined above
     await fs.ensureDir(userDataDir);
+
+    userContentDir = path.join(userDataDir, 'user_content');
+    await fs.ensureDir(userContentDir);
 
     const packagedBackend = packagedPath('backend');
     const userBackend = path.join(userDataDir, 'backend');
@@ -94,7 +125,9 @@ async function firstRunInit() {
     if (needsUpdate) {
       console.log(`Updating from ${storedVersion} to ${currentVersion}...`);
 
-      // Preserve User Data
+      // Preserve User Data (Logs, Sessions, SQLite if inside, etc.)
+      // Note: We are now moving "uploads" to userContentDir, so 'storage' contains less critical data,
+      // but we still preserve it to keep logs and sessions.
       const tempStorage = path.join(userDataDir, 'storage_temp');
       const tempEnv = path.join(userDataDir, '.env.temp');
       const userStorage = path.join(userBackend, 'storage');
@@ -136,17 +169,57 @@ async function firstRunInit() {
       }
     }
 
-    // Ensure public/storage symlink is removed so Laravel route handles it
-    const symlinkPath = path.join(runtimeBackend, 'public', 'storage');
+    // Create junction from public/storage to persistent user content directory
+    // This allows PHP server to serve files directly from AppData
+    const publicStoragePath = path.join(runtimeBackend, 'public', 'storage');
     try {
-      if (fs.existsSync(symlinkPath) || fs.lstatSync(symlinkPath).isSymbolicLink()) {
-        await fs.remove(symlinkPath);
+      // Remove any existing symlink/junction/directory
+      if (await fs.pathExists(publicStoragePath)) {
+        await fs.remove(publicStoragePath);
       }
-    } catch (e) { }
+
+      // Create junction (works without admin privileges on Windows)
+      const { exec } = require('child_process');
+      const junctionCmd = `cmd /c mklink /J "${publicStoragePath}" "${userContentDir}"`;
+      await new Promise((resolve, reject) => {
+        exec(junctionCmd, (error, stdout, stderr) => {
+          if (error) {
+            console.error('Junction creation warning:', error);
+            // Non-fatal, continue anyway
+          }
+          resolve();
+        });
+      });
+    } catch (e) {
+      console.error('Storage junction warning:', e);
+    }
   }
 
   // -------------------------------------------------------------------------
-  // 2. RUNTIME CONFIGURATION (.env) - Runs for BOTH Dev and Prod
+  // MIGRATION: Move old 'storage/app/public' content to 'user_content'
+  // -------------------------------------------------------------------------
+  // This runs for both Dev and Prod to ensure consistency.
+  // If we find files in <runtimeBackend>/storage/app/public, we move them to <userContentDir>
+  if (runtimeBackend && userContentDir) {
+    const oldPublicPath = path.join(runtimeBackend, 'storage', 'app', 'public');
+    if (await fs.pathExists(oldPublicPath)) {
+      console.log('Checking for legacy content to migrate...');
+      try {
+        await fs.copy(oldPublicPath, userContentDir, {
+          overwrite: false, // Don't overwrite if already exists in target
+          errorOnExist: false
+        });
+        console.log('Legacy content migration checked/completed.');
+      } catch (e) {
+        console.error('Migration Warning:', e);
+      }
+    }
+    // Ensure the dir exists at minimum
+    await fs.ensureDir(userContentDir);
+  }
+
+  // -------------------------------------------------------------------------
+  // 2. RUNTIME CONFIGURATION (.env)
   // -------------------------------------------------------------------------
   const runtimeEnvPath = path.join(runtimeBackend, '.env');
   let envText = '';
@@ -156,23 +229,27 @@ async function firstRunInit() {
 
   // Helper to enforce env vars
   const forceEnv = (key, val) => {
+    // Normalize to forward slashes to avoid Windows backslash escaping issues in .env
+    const normalizedVal = String(val).replace(/\\/g, '/');
+
+    // Regex to match existing key
     const regex = new RegExp(`^${key}=.*`, 'gm');
     if (envText.match(regex)) {
-      envText = envText.replace(regex, `${key}=${val}`);
+      envText = envText.replace(regex, `${key}=${normalizedVal}`);
     } else {
-      envText += `\n${key}=${val}`;
+      envText += `\n${key}=${normalizedVal}`;
     }
   };
-
-  // CRITICAL: Fixes 419 Page Expired (Session Issues)
-  forceEnv('APP_ENV', 'production');
-  forceEnv('APP_DEBUG', isPackaged() ? 'false' : 'true');
 
   forceEnv('APP_URL', 'http://127.0.0.1:8000');
   forceEnv('SESSION_DRIVER', 'file');
   forceEnv('SESSION_DOMAIN', 'null');
   forceEnv('SESSION_SECURE_COOKIE', 'false');
   forceEnv('SANCTUM_STATEFUL_DOMAINS', '127.0.0.1:8000');
+
+  // INJECT USER CONTENT PATH
+  // This variable will be picked up by config/filesystems.php
+  forceEnv('USER_CONTENT_PATH', userContentDir);
 
   // DB Path
   const dbForEnv = targetDb.split(path.sep).join(path.posix.sep);
@@ -181,7 +258,7 @@ async function firstRunInit() {
   await fs.writeFile(runtimeEnvPath, envText, 'utf8');
 
   // -------------------------------------------------------------------------
-  // 3. STORAGE & CACHE - Runs for BOTH
+  // 3. STORAGE & CACHE
   // -------------------------------------------------------------------------
   await fs.ensureDir(path.join(runtimeBackend, 'storage', 'framework', 'sessions'));
   await fs.ensureDir(path.join(runtimeBackend, 'storage', 'framework', 'views'));
