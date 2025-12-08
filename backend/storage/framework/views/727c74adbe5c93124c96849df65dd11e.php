@@ -141,9 +141,6 @@
                     </div>
 
                     <div class="p-4 border-t border-gray-200 bg-gray-50">
-                        <textarea name="notes" rows="2" placeholder="Special instructions (optional)" 
-                                  class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
-                        
                         <button type="submit" id="submitBtn" disabled
                                 class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition text-sm shadow-md">
                             Place Order
@@ -632,7 +629,8 @@ function addToCart(itemId, itemName, itemPrice, event = null) {
             id: itemId,
             name: itemName || 'Unnamed Item',
             price: price,
-            quantity: 1
+            quantity: 1,
+            special_instructions: ''
         });
     }
     
@@ -727,33 +725,42 @@ function updateCartDisplay() {
         const quantity = parseInt(item.quantity) || 1;
         const price = parseFloat(item.price) || 0;
         const total = (price * quantity).toFixed(2);
+        const specialInstructions = item.special_instructions || '';
         
         html += `
-            <div class="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors">
-                <div class="flex-1">
-                    <div class="text-sm font-medium text-gray-900">${item.name || 'Unnamed Item'}</div>
-                    <div class="flex items-center mt-1">
+            <div class="p-2 bg-white rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-900">${item.name || 'Unnamed Item'}</div>
+                        <div class="flex items-center mt-1">
+                            <button type="button" 
+                                    onclick="updateQuantity(${index}, -1, event)" 
+                                    class="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">
+                                -
+                            </button>
+                            <span class="mx-2 w-8 text-center text-sm">${quantity}</span>
+                            <button type="button" 
+                                    onclick="updateQuantity(${index}, 1, event)" 
+                                    class="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">
+                                +
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-semibold">₹${total}</div>
                         <button type="button" 
-                                onclick="updateQuantity(${index}, -1, event)" 
-                                class="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">
-                            -
-                        </button>
-                        <span class="mx-2 w-8 text-center text-sm">${quantity}</span>
-                        <button type="button" 
-                                onclick="updateQuantity(${index}, 1, event)" 
-                                class="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">
-                            +
+                                onclick="removeFromCart(${index}, event)" 
+                                class="text-xs text-red-500 hover:text-red-700 mt-1 transition-colors">
+                            Remove
                         </button>
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="text-sm font-semibold">₹${total}</div>
-                    <button type="button" 
-                            onclick="removeFromCart(${index}, event)" 
-                            class="text-xs text-red-500 hover:text-red-700 mt-1 transition-colors">
-                        Remove
-                    </button>
-                </div>
+                <input type="text" 
+                       id="special-instructions-${index}"
+                       value="${specialInstructions}"
+                       onchange="updateItemInstructions(${index}, this.value)"
+                       placeholder="Special instructions (optional)"
+                       class="mt-2 w-full text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
             </div>
         `;
     });
@@ -843,8 +850,22 @@ function updateTotals() {
             orderForm.appendChild(createHiddenInput(`${itemPrefix}[menu_item_id]`, item.id));
             orderForm.appendChild(createHiddenInput(`${itemPrefix}[quantity]`, item.quantity));
             orderForm.appendChild(createHiddenInput(`${itemPrefix}[unit_price]`, item.price));
+            if (item.special_instructions) {
+                orderForm.appendChild(createHiddenInput(`${itemPrefix}[special_instructions]`, item.special_instructions));
+            }
         });
     }
+}
+
+// Update item special instructions
+function updateItemInstructions(index, instructions) {
+    if (!cart[index]) {
+        console.error('Invalid cart item index:', index);
+        return;
+    }
+    
+    cart[index].special_instructions = instructions;
+    updateTotals(); // Update form with new instructions
 }
 
 // Clear cart
@@ -964,7 +985,6 @@ function openKOTPrintWindow(kot) {
                     ${itemsHtml}
                 </tbody>
             </table>
-            ${kot.notes ? `<div style="margin-top: 10px;"><strong>Notes:</strong> ${kot.notes}</div>` : ''}
             <div style="margin-top: 20px; text-align: center;">
                 <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Print</button>
             </div>
@@ -1104,9 +1124,9 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
         items: cart.map(item => ({
             menu_item_id: item.id,
             quantity: item.quantity,
-            unit_price: item.price
-        })),
-        notes: document.querySelector('textarea[name="notes"]').value
+            unit_price: item.price,
+            special_instructions: item.special_instructions || ''
+        }))
     };
     
     try {
@@ -1143,7 +1163,6 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
             // Clear cart and reset form
             cart = [];
             updateCartDisplay(); // This is the correct function name
-            document.querySelector('textarea[name="notes"]').value = '';
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('orderForm').reset();
             await loadTableOrders(selectedTable);

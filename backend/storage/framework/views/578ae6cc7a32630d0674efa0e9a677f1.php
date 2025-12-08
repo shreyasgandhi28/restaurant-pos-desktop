@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bill #{{ $bill->bill_number }}</title>
+    <title>Bill #<?php echo e($bill->bill_number); ?></title>
     <style>
         @font-face {
             font-family: 'Noto Sans Devanagari';
             font-style: normal;
             font-weight: normal;
-            src: url('{{ storage_path('fonts/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
+            src: url('<?php echo e(asset('fonts/NotoSansDevanagari-Regular.ttf')); ?>') format('truetype');
         }
         @font-face {
             font-family: 'Noto Sans Devanagari';
             font-style: normal;
             font-weight: bold;
-            src: url('{{ storage_path('fonts/NotoSansDevanagari-Bold.ttf') }}') format('truetype');
+            src: url('<?php echo e(asset('fonts/NotoSansDevanagari-Bold.ttf')); ?>') format('truetype');
         }
 
         @page {
@@ -199,10 +199,35 @@
             padding-top: 5px;
             border-top: 1px dashed #000;
         }
+        
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .print-button-container {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
-    @include('bills.partials.receipt', [
+    <?php
+        $settings = \App\Models\Setting::all()->keyBy('key')->map(function($item) {
+            return $item->value;
+        });
+        
+        $bill->load(['order.orderItems.menuItem', 'order.restaurantTable']);
+        
+        $taxRate = $bill->order->tax_rate;
+        $serviceChargeRate = $bill->order->service_charge_rate;
+        $taxAmount = $bill->subtotal * ($taxRate / 100);
+        $serviceCharge = $bill->subtotal * ($serviceChargeRate / 100);
+        $newTotal = $bill->subtotal + $taxAmount + $serviceCharge - $bill->discount_amount;
+    ?>
+
+    <?php echo $__env->make('bills.partials.receipt', [
         'bill' => $bill,
         'items' => $items,
         'settings' => $settings,
@@ -211,6 +236,12 @@
         'serviceChargeRate' => $serviceChargeRate,
         'serviceCharge' => $serviceCharge,
         'newTotal' => $newTotal
-    ])
+    ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    
+    <div class="print-button-container" style="text-align: center; margin: 10px 0;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 14px; cursor: pointer; background: #16a34a; color: white; border: none; border-radius: 4px; font-weight: bold;">Print Bill</button>
+    </div>
+
 </body>
 </html>
+<?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/bills/print.blade.php ENDPATH**/ ?>

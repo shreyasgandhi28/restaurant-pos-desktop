@@ -29,6 +29,8 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Noto Sans Devanagari', 'Arial', 'Helvetica', sans-serif;
+            font-size: 12px;
+            font-weight: bold;
             line-height: 1.2;
         }
         
@@ -36,7 +38,7 @@
             width: 65mm;
             margin: 0 auto;
             padding: 0;
-            padding-bottom: 2mm; /* Reduced white space padding at the end */
+            padding-bottom: 2mm;
             color: #000;
             font-size: 12px;
             font-weight: bold;
@@ -96,11 +98,11 @@
             width: 100%;
             border-collapse: collapse;
             margin: 5px 0;
-            page-break-inside: auto; /* Allow items to break if list is very long */
+            page-break-inside: auto;
         }
         
         .items-table tr {
-            page-break-inside: avoid; /* Don't break inside a row */
+            page-break-inside: avoid;
             page-break-after: auto;
         }
         
@@ -146,7 +148,7 @@
             margin: 10px 0;
             border-top: 1px dashed #000;
             padding-top: 5px;
-            page-break-inside: avoid; /* Keep totals together */
+            page-break-inside: avoid;
         }
         
         .totals-table {
@@ -180,6 +182,7 @@
             margin: 10px 0;
             padding: 5px 0;
             border-top: 1px dashed #000;
+            font-size: 12px;
         }
         
         .payment-row {

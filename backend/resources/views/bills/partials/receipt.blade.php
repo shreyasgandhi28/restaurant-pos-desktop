@@ -23,16 +23,16 @@
 <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
 
 <!-- Bill Info -->
-<div style="font-size: 12px; margin: 3px 0;">
+<div class="bill-info" style="margin: 3px 0;">
     <div>Table: {{ $bill->order->restaurantTable->table_number }}</div>
 </div>
-<div style="font-size: 12px; margin: 3px 0;">
+<div class="bill-info" style="margin: 3px 0;">
     <div>Bill No: {{ $bill->bill_number }}</div>
 </div>
-<div style="font-size: 12px; margin: 3px 0;">
+<div class="bill-info" style="margin: 3px 0;">
     <div>Date: {{ $bill->created_at->format('d/m/Y h:i A') }}</div>
 </div>
-<div style="font-size: 12px; margin: 3px 0 5px;">
+<div class="bill-info" style="margin: 3px 0 5px;">
     <div>Status: <span style="text-transform: uppercase;">{{ $bill->status }}</span></div>
 </div>
 
@@ -70,7 +70,7 @@
 <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
 
 <!-- Totals -->
-<table style="width: 100%; font-size: 12px; margin: 5px 0;">
+<table class="totals-table" style="width: 100%; margin: 5px 0;">
     <tr>
         <td style="text-align: left; padding: 2px 0;">Sub Total:</td>
         <td style="text-align: right; padding: 2px 0;">₹{{ number_format($bill->subtotal, 2) }}</td>
@@ -94,10 +94,17 @@
         </tr>
     @endif
     
+    @if($bill->discount_amount > 0)
+        <tr>
+            <td style="text-align: left; padding: 2px 0;">Discount ({{ number_format($bill->discount_percentage, 2) }}%):</td>
+            <td style="text-align: right; padding: 2px 0;">-₹{{ number_format($bill->discount_amount, 2) }}</td>
+        </tr>
+    @endif
+    
     @php
         $totalQuantity = $items->sum('quantity');
     @endphp
-    <tr style="border-top: 1px solid #000; border-bottom: 1px solid #000; font-weight: bold; font-size: 14px;">
+    <tr class="grand-total">
         <td style="padding: 4px 0; text-align: left;">
             TOTAL ({{ $totalQuantity }} items)
         </td>
@@ -107,10 +114,8 @@
     </tr>
 </table>
 
-<div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-
 <!-- Payment Info -->
-<div style="font-size: 12px; margin: 5px 0;">
+<div class="payment-section" style="margin: 5px 0;">
     <div style="margin: 3px 0;">
         <span>Payment Method:</span>
         <span style="font-weight: bold; margin-left: 5px;">{{ strtoupper($bill->payment_method ?? 'CASH') }}</span>
