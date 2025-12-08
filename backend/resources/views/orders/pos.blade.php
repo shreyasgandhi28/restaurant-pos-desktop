@@ -506,7 +506,6 @@ function openKOTPrintWindow(kot) {
                     ${itemsHtml}
                 </tbody>
             </table>
-            ${kot.notes ? `<div style="margin-top: 10px;"><strong>Notes:</strong> ${kot.notes}</div>` : ''}
             <div style="margin-top: 20px; text-align: center;">
                 <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Print</button>
             </div>
