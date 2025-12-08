@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'POS - Point of Sale'); ?>
 
-@section('title', 'POS - Point of Sale')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <div class="w-full min-h-screen flex bg-white">
   <!-- LEFT SIDEBAR: Compact vertical menu -->
@@ -22,17 +20,18 @@
             style="transition: all 0.2s ease-in-out;">
             All Items
         </button>
-        @foreach($categories as $category)
+        <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <button 
-                onclick="filterCategory('{{ $category->slug ?? 'all' }}')" 
-                data-category="{{ $category->slug ?? 'all' }}"
+                onclick="filterCategory('<?php echo e($category->slug ?? 'all'); ?>')" 
+                data-category="<?php echo e($category->slug ?? 'all'); ?>"
                 class="category-btn w-full text-left px-3 py-2 text-sm font-medium text-gray-700 rounded-lg border-2 border-transparent transition-all transform hover:scale-[1.02]
                        hover:border-indigo-300 hover:shadow-sm
                        focus:outline-none focus:ring-1 focus:ring-indigo-300"
                 style="transition: all 0.2s ease-in-out;">
-                {{ $category->name ?? 'Uncategorized' }}
+                <?php echo e($category->name ?? 'Uncategorized'); ?>
+
             </button>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
       </div>
     </nav>
   </aside>
@@ -47,17 +46,18 @@
                     <h3 class="text-sm font-semibold text-gray-700">Select Table</h3>
                 </div>
                 <div class="flex flex-wrap gap-1.5 mb-2">
-                    @foreach($tables as $table)
-                        <button onclick="selectTable({{ $table->id }}, '{{ $table->table_number }}', '{{ $table->effective_status }}')" 
-                                id="table-btn-{{ $table->id }}"
-                                data-table-id="{{ $table->id }}"
-                                data-status="{{ $table->effective_status }}"
+                    <?php $__currentLoopData = $tables; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $table): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <button onclick="selectTable(<?php echo e($table->id); ?>, '<?php echo e($table->table_number); ?>', '<?php echo e($table->effective_status); ?>')" 
+                                id="table-btn-<?php echo e($table->id); ?>"
+                                data-table-id="<?php echo e($table->id); ?>"
+                                data-status="<?php echo e($table->effective_status); ?>"
                                 class="table-btn px-3 py-1.5 text-xs font-semibold rounded-lg border-2 transition-all transform hover:scale-105
-                                       {{ $table->effective_status === 'occupied' ? 'border-orange-400 bg-orange-50 text-orange-700 hover:bg-orange-100' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50' }} shadow-sm"
+                                       <?php echo e($table->effective_status === 'occupied' ? 'border-orange-400 bg-orange-50 text-orange-700 hover:bg-orange-100' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'); ?> shadow-sm"
                                        style="transition: all 0.2s ease-in-out;">
-                            T{{ $table->table_number }}
+                            T<?php echo e($table->table_number); ?>
+
                         </button>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
                 <p class="text-xs text-gray-500" id="selectedTableInfo">No table selected</p>
             </div>
@@ -72,27 +72,27 @@
                            placeholder="Search menu...">
                 </div>
                 <div id="menuItemsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-                    @foreach($menuItems as $item)
+                    <?php $__currentLoopData = $menuItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="menu-item bg-white border border-gray-200 rounded-lg p-2 cursor-pointer hover:border-indigo-500 hover:shadow-sm transition flex flex-col" 
-                             data-category="{{ $item->category ? $item->category->slug : 'uncategorized' }}"
-                             onclick="addToCart({{ $item->id }}, '{{ addslashes($item->name ?? '') }}', {{ $item->price ?? 0 }}, event)">
+                             data-category="<?php echo e($item->category ? $item->category->slug : 'uncategorized'); ?>"
+                             onclick="addToCart(<?php echo e($item->id); ?>, '<?php echo e(addslashes($item->name ?? '')); ?>', <?php echo e($item->price ?? 0); ?>, event)">
                             <div class="w-full h-20 bg-gray-100 rounded-md overflow-hidden">
-                                @if($item->image ?? null)
-                                    <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name ?? 'Menu Item' }}" class="w-full h-full object-cover">
-                                @else
+                                <?php if($item->image ?? null): ?>
+                                    <img src="<?php echo e(asset('storage/' . $item->image)); ?>" alt="<?php echo e($item->name ?? 'Menu Item'); ?>" class="w-full h-full object-cover">
+                                <?php else: ?>
                                     <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-400">
                                         <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                         </svg>
                                     </div>
-                                @endif
+                                <?php endif; ?>
                             </div>
                             <div class="mt-3 flex flex-col">
-                                <h4 class="text-xs font-medium text-gray-900 line-clamp-2 leading-snug">{{ $item->name ?? 'Unnamed Item' }}</h4>
-                                <p class="text-xs font-bold text-indigo-600 whitespace-nowrap mt-1">₹{{ number_format($item->price ?? 0, 0) }}</p>
+                                <h4 class="text-xs font-medium text-gray-900 line-clamp-2 leading-snug"><?php echo e($item->name ?? 'Unnamed Item'); ?></h4>
+                                <p class="text-xs font-bold text-indigo-600 whitespace-nowrap mt-1">₹<?php echo e(number_format($item->price ?? 0, 0)); ?></p>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
           </div>
@@ -113,8 +113,8 @@
                     </div>
                 </div>
 
-                <form action="{{ route('pos.store') }}" method="POST" id="orderForm">
-                    @csrf
+                <form action="<?php echo e(route('pos.store')); ?>" method="POST" id="orderForm">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="restaurant_table_id" id="tableIdInput">
                     
                     <div class="p-4 max-h-64 overflow-y-auto bg-gray-50" id="cartItems">
@@ -127,11 +127,11 @@
                             <span class="font-semibold text-gray-900" id="subtotal">₹0.00</span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">GST (<span id="taxPercentage">{{ $taxRate ?? 10 }}</span>%):</span>
+                            <span class="text-gray-600">GST (<span id="taxPercentage"><?php echo e($taxRate ?? 10); ?></span>%):</span>
                             <span class="font-semibold text-gray-900" id="tax">₹0.00</span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Service (<span id="serviceChargePercentage">{{ $serviceChargeRate ?? 5 }}</span>%):</span>
+                            <span class="text-gray-600">Service (<span id="serviceChargePercentage"><?php echo e($serviceChargeRate ?? 5); ?></span>%):</span>
                             <span class="font-semibold text-gray-900" id="serviceCharge">₹0.00</span>
                         </div>
                         <div class="flex justify-between text-lg font-bold pt-2 border-t border-gray-300">
@@ -237,16 +237,16 @@
     </div>
 </div>
 
-@php
+<?php
     $token = '';
     try {
         $token = auth()->user()?->createToken("pos-token")->plainTextToken ?? '';
     } catch (\Exception $e) {
         $token = '';
     }
-@endphp
+?>
 <script>
-let authToken = @json($token);
+let authToken = <?php echo json_encode($token, 15, 512) ?>;
 
 // Cart and table state
 let cart = [];
@@ -788,8 +788,8 @@ function updateTotals() {
     }, 0);
     
     // Get tax and service charge rates from controller
-    const taxRate = {{ ($taxRate ?? 10) / 100 }}; // Convert percentage to decimal
-    const serviceChargeRate = {{ ($serviceChargeRate ?? 5) / 100 }}; // Convert percentage to decimal
+    const taxRate = <?php echo e(($taxRate ?? 10) / 100); ?>; // Convert percentage to decimal
+    const serviceChargeRate = <?php echo e(($serviceChargeRate ?? 5) / 100); ?>; // Convert percentage to decimal
     
     const tax = subtotal * taxRate;
     const serviceCharge = subtotal * serviceChargeRate;
@@ -864,7 +864,7 @@ async function printKOT(kotId) {
                 'Authorization': `Bearer ${authToken}`,
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
@@ -1172,4 +1172,6 @@ document.getElementById('posSearchInput').addEventListener('input', function() {
     });
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\restaurant-pos-desktop\backend\resources\views/pos/index.blade.php ENDPATH**/ ?>
