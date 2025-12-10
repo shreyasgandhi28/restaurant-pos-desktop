@@ -76,7 +76,7 @@
                         <div class="menu-item bg-white border border-gray-200 rounded-lg p-2 cursor-pointer hover:border-indigo-500 hover:shadow-sm transition flex flex-col" 
                              data-category="{{ $item->category ? $item->category->slug : 'uncategorized' }}"
                              onclick="addToCart({{ $item->id }}, '{{ addslashes($item->name ?? '') }}', {{ $item->price ?? 0 }}, event)">
-                            <div class="w-full h-20 bg-gray-100 rounded-md overflow-hidden">
+                            <div class="w-full bg-gray-100 rounded-md overflow-hidden" style="aspect-ratio: 4/3;">
                                 @if($item->image ?? null)
                                     <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name ?? 'Menu Item' }}" class="w-full h-full object-cover">
                                 @else
@@ -88,8 +88,8 @@
                                 @endif
                             </div>
                             <div class="mt-3 flex flex-col">
-                                <h4 class="text-xs font-medium text-gray-900 line-clamp-2 leading-snug">{{ $item->name ?? 'Unnamed Item' }}</h4>
-                                <p class="text-xs font-bold text-indigo-600 whitespace-nowrap mt-1">₹{{ number_format($item->price ?? 0, 0) }}</p>
+                                <h4 class="text-sm font-medium text-gray-900 line-clamp-2 leading-snug">{{ $item->name ?? 'Unnamed Item' }}</h4>
+                                <p class="text-sm font-bold text-indigo-600 whitespace-nowrap mt-1">₹{{ number_format($item->price ?? 0, 0) }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -455,7 +455,7 @@ function adjustMenuGrid() {
     const availableWidth = menuContainer ? menuContainer.offsetWidth : window.innerWidth;
     
     // Minimum card width to ensure image and name are visible (in pixels)
-    const minCardWidth = 140; // Adjusted for better visibility
+    const minCardWidth = 150; // Adjusted for better visibility
     const gap = 16; // gap-4 = 16px
     
     // Calculate maximum columns that can fit without truncation

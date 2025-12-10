@@ -80,6 +80,15 @@
                                 <span>Discount Amount:</span>
                                 <span class="font-semibold" id="discountAmount">₹0.00</span>
                             </div>
+                            
+                            <div class="mt-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Discount Reason <span class="text-xs text-gray-400">(required when discount > 0)</span>
+                                </label>
+                                <textarea name="discount_reason" id="discountReason" rows="2"
+                                          class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                          placeholder="Enter reason for discount"></textarea>
+                            </div>
                         </div>
 
                         <div class="border-t pt-4">
@@ -120,6 +129,19 @@ function calculateTotal() {
     document.getElementById('discountAmount').textContent = '₹' + discountAmount.toFixed(2);
     document.getElementById('totalAmount').textContent = '₹' + total.toFixed(2);
 }
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const discountPercentage = parseFloat(document.getElementById('discountPercentage').value) || 0;
+    const discountReason = document.getElementById('discountReason').value.trim();
+    
+    if (discountPercentage > 0 && !discountReason) {
+        e.preventDefault();
+        alert('Please enter a reason for the discount.');
+        document.getElementById('discountReason').focus();
+        return false;
+    }
+});
 
 // Initialize
 calculateTotal();

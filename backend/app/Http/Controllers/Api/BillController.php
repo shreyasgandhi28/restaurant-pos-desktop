@@ -18,6 +18,7 @@ class BillController extends Controller
         $validated = $request->validate([
             'discount_percentage' => 'nullable|numeric|min:0|max:100',
             'discount_amount' => 'nullable|numeric|min:0',
+            'discount_reason' => 'nullable|string|max:500',
         ]);
 
         DB::beginTransaction();
@@ -51,6 +52,7 @@ class BillController extends Controller
                 'service_charge' => $serviceCharge,
                 'discount_amount' => $discountAmount,
                 'discount_percentage' => $discountPercentage,
+                'discount_reason' => $validated['discount_reason'] ?? null,
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
             ]);

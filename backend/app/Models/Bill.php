@@ -16,6 +16,7 @@ class Bill extends Model
         'service_charge',
         'discount_amount',
         'discount_percentage',
+        'discount_reason',
         'total_amount',
         'amount_paid',
         'payment_method',

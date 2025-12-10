@@ -45,7 +45,15 @@ class BillController extends Controller
             'order_id' => 'required|exists:orders,id',
             'discount_percentage' => 'nullable|numeric|min:0|max:100',
             'discount_amount' => 'nullable|numeric|min:0',
+            'discount_reason' => 'nullable|string|max:500',
         ]);
+
+        // COMPREHENSIVE DEBUG LOGGING
+        \Log::info('=== BILL GENERATION DEBUG ===');
+        \Log::info('All Request Data:', $request->all());
+        \Log::info('Validated Data:', $validated);
+        \Log::info('Has discount_reason in request:', ['exists' => $request->has('discount_reason'), 'value' => $request->input('discount_reason')]);
+        \Log::info('Has discount_reason in validated:', ['exists' => isset($validated['discount_reason']), 'value' => $validated['discount_reason'] ?? 'NOT SET']);
 
         $order = Order::findOrFail($validated['order_id']);
         
@@ -78,7 +86,7 @@ class BillController extends Controller
         $bill = null;
         
         // Use a transaction to ensure data consistency
-        DB::transaction(function () use ($order, $subtotal, $taxAmount, $serviceCharge, $discountPercentage, $discountAmount, $totalAmount, &$bill) {
+        DB::transaction(function () use ($order, $subtotal, $taxAmount, $serviceCharge, $discountPercentage, $discountAmount, $totalAmount, $validated, &$bill) {
             // Create the bill
             $bill = Bill::create([
                 'order_id' => $order->id,
@@ -88,6 +96,7 @@ class BillController extends Controller
                 'service_charge' => $serviceCharge,
                 'discount_percentage' => $discountPercentage,
                 'discount_amount' => $discountAmount,
+                'discount_reason' => $validated['discount_reason'] ?? null,
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
             ]);

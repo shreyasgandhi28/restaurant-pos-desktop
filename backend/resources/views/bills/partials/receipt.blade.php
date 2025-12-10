@@ -99,6 +99,13 @@
             <td style="text-align: left; padding: 2px 0;">Discount ({{ number_format($bill->discount_percentage, 2) }}%):</td>
             <td style="text-align: right; padding: 2px 0;">-₹{{ number_format($bill->discount_amount, 2) }}</td>
         </tr>
+        @if($bill->discount_reason)
+            <tr>
+                <td colspan="2" style="text-align: left; padding: 0 0 2px 0; font-size: 10px; font-style: italic; color: #000;">
+                    Reason: {{ $bill->discount_reason }}
+                </td>
+            </tr>
+        @endif
     @endif
     
     @php
