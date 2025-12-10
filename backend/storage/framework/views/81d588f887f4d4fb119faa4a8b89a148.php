@@ -220,25 +220,75 @@
 
     <?php if (\Illuminate\Support\Facades\Blade::check('role', 'admin|manager')): ?>
     <!-- Revenue Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
         <!-- Daily Revenue -->
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mb-4">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Daily Revenue</p>
                     <p class="text-2xl font-bold text-gray-900">₹<?php echo e(number_format($revenueData['daily'] ?? 0, 2)); ?></p>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                     </svg>
+                </div>
+            </div>
+            
+            <!-- Payment Method Breakdown -->
+            <div class="pt-4 border-t border-gray-100">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Breakdown</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+                    <!-- Cash -->
+                    <div class="flex items-center pr-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Cash</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($todayPaymentBreakdown['cash'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- UPI -->
+                    <div class="flex items-center pl-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">UPI</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($todayPaymentBreakdown['upi'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- Card -->
+                    <div class="flex items-center pr-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-purple-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Card</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($todayPaymentBreakdown['card'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- Other -->
+                    <div class="flex items-center pl-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Other</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($todayPaymentBreakdown['other'] ?? 0, 2)); ?></span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Monthly Revenue -->
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mb-4">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Monthly Revenue</p>
                     <p class="text-2xl font-bold text-gray-900">₹<?php echo e(number_format($revenueData['monthly'] ?? 0, 2)); ?></p>
@@ -249,11 +299,61 @@
                     </svg>
                 </div>
             </div>
+            
+            <!-- Payment Method Breakdown -->
+            <div class="pt-4 border-t border-gray-100">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Breakdown</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+                    <!-- Cash -->
+                    <div class="flex items-center pr-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Cash</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($monthlyPaymentBreakdown['cash'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- UPI -->
+                    <div class="flex items-center pl-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">UPI</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($monthlyPaymentBreakdown['upi'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- Card -->
+                    <div class="flex items-center pr-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-purple-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Card</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($monthlyPaymentBreakdown['card'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- Other -->
+                    <div class="flex items-center pl-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Other</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($monthlyPaymentBreakdown['other'] ?? 0, 2)); ?></span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Yearly Revenue -->
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mb-4">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Yearly Revenue</p>
                     <p class="text-2xl font-bold text-gray-900">₹<?php echo e(number_format($revenueData['yearly'] ?? 0, 2)); ?></p>
@@ -262,6 +362,56 @@
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
+                </div>
+            </div>
+            
+            <!-- Payment Method Breakdown -->
+            <div class="pt-4 border-t border-gray-100">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Breakdown</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+                    <!-- Cash -->
+                    <div class="flex items-center pr-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Cash</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($yearlyPaymentBreakdown['cash'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- UPI -->
+                    <div class="flex items-center pl-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">UPI</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($yearlyPaymentBreakdown['upi'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- Card -->
+                    <div class="flex items-center pr-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-purple-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Card</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($yearlyPaymentBreakdown['card'] ?? 0, 2)); ?></span>
+                    </div>
+                    
+                    <!-- Other -->
+                    <div class="flex items-center pl-6">
+                        <div class="flex items-center w-24">
+                            <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600">Other</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">₹<?php echo e(number_format($yearlyPaymentBreakdown['other'] ?? 0, 2)); ?></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -297,8 +447,8 @@
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-gray-900">Peak Hours (10 AM - 10 PM)</h3>
                     <div class="flex items-center">
-                        <label for="dateSelect" class="text-xs text-gray-600 mr-2">View:</label>
-                        <select id="dateSelect" class="w-40 h-8 text-xs rounded border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <label for="dateSelect" class="text-xs text-gray-600 mr-3">View:</label>
+                        <select id="dateSelect" class="w-32 h-8 text-xs rounded border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="overall">Overall</option>
                             <?php $__currentLoopData = $availableDates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($date); ?>"><?php echo e($label); ?></option>
@@ -316,13 +466,14 @@
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-gray-900">Monthly Revenue</h3>
                     <div class="flex items-center">
-                        <label for="yearSelect" class="text-xs text-gray-600 mr-2">Year:</label>
-                        <select id="yearSelect" class="w-20 h-8 text-xs rounded border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <label for="yearSelect" class="text-xs text-gray-600 mr-3">Year:</label>
+                        <select id="yearSelect" class="w-[5.5rem] pl-2 h-8 text-xs rounded border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <?php $__currentLoopData = $years; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($year); ?>" <?php echo e($year == $currentYear ? 'selected' : ''); ?>><?php echo e($year); ?></option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
+
                 </div>
                 <div class="relative flex-1">
                     <canvas id="monthlyRevenueChart"></canvas>
@@ -417,6 +568,7 @@
                                         plugins: {
                                             legend: { display: false },
                                             tooltip: {
+                                                displayColors: false,
                                                 callbacks: {
                                                     label: (context) => `${context.parsed.y.toFixed(1)} orders`
                                                 }
@@ -477,10 +629,12 @@
                                 datasets: [{
                                     label: 'Revenue (₹)',
                                     data: data.data,
+                                    breakdown: data.breakdown, // Pass breakdown data to dataset
                                     backgroundColor: 'rgba(16, 185, 129, 0.7)',
                                     borderColor: 'rgb(16, 185, 129)',
                                     borderWidth: 1,
-                                    borderRadius: 4
+                                    borderRadius: 4,
+                                    pointStyle: 'circle' // Ensure circle point style for tooltip
                                 }]
                             };
 
@@ -499,8 +653,24 @@
                                         plugins: {
                                             legend: { display: false },
                                             tooltip: {
+                                                displayColors: false,
                                                 callbacks: {
-                                                    label: (context) => `₹${context.parsed.y.toLocaleString('en-IN')}`
+                                                    label: (context) => `Total: ₹${context.parsed.y.toLocaleString('en-IN')}`,
+                                                    afterBody: (context) => {
+                                                        const dataIndex = context[0].dataIndex;
+                                                        const breakdown = context[0].dataset.breakdown[dataIndex];
+                                                        const lines = [];
+                                                        
+                                                        if (breakdown) {
+                                                            lines.push(''); // Spacer
+                                                            if (breakdown.cash > 0) lines.push(`Cash: ₹${breakdown.cash.toLocaleString('en-IN')}`);
+                                                            if (breakdown.upi > 0) lines.push(`UPI: ₹${breakdown.upi.toLocaleString('en-IN')}`);
+                                                            if (breakdown.card > 0) lines.push(`Card: ₹${breakdown.card.toLocaleString('en-IN')}`);
+                                                            if (breakdown.other > 0) lines.push(`Other: ₹${breakdown.other.toLocaleString('en-IN')}`);
+                                                        }
+                                                        
+                                                        return lines;
+                                                    }
                                                 }
                                             }
                                         },

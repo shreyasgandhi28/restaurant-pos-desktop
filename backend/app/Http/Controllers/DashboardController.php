@@ -218,15 +218,27 @@ class DashboardController extends Controller
 
         // Peak hours
         $peakHours = $this->getPeakHours($dateRange);
-        
+
         // Monthly revenue data
         $monthlyRevenue = $this->getMonthlyRevenue(6); // Last 6 months
+        
+        // Payment method breakdown for today
+        $todayPaymentBreakdown = $this->getPaymentBreakdown('daily');
+        
+        // Payment method breakdown for month
+        $monthlyPaymentBreakdown = $this->getPaymentBreakdown('monthly');
+        
+        // Payment method breakdown for year
+        $yearlyPaymentBreakdown = $this->getPaymentBreakdown('yearly');
 
         return view('dashboard', compact(
             'totalTables',
             'availableTables',
             'activeOrders',
             'todayRevenue',
+            'todayPaymentBreakdown',
+            'monthlyPaymentBreakdown',
+            'yearlyPaymentBreakdown',
             'recentOrders',
             'revenueData',
             'popularItems',
@@ -511,14 +523,33 @@ class DashboardController extends Controller
             $revenue = Bill::where('status', 'paid')
                 ->whereBetween('paid_at', [$monthStart, $monthEnd])
                 ->sum('total_amount');
+
+            // Calculate payment breakdown for the month
+            $breakdown = Bill::where('status', 'paid')
+                ->whereBetween('paid_at', [$monthStart, $monthEnd])
+                ->selectRaw('payment_method, sum(total_amount) as total')
+                ->groupBy('payment_method')
+                ->pluck('total', 'payment_method')
+                ->toArray();
                 
-            $revenueData[] = (float)$revenue;
+            // Ensure all payment methods exist
+            $completeBreakdown = [];
+            $paymentMethods = ['cash', 'card', 'upi', 'other'];
+            foreach ($paymentMethods as $method) {
+                $completeBreakdown[$method] = (float)($breakdown[$method] ?? 0);
+            }
+                
+            $revenueData[] = [
+                'total' => (float)$revenue,
+                'breakdown' => $completeBreakdown
+            ];
             $labels[] = $monthStart->format('M Y');
         }
         
         return response()->json([
             'success' => true,
-            'data' => $revenueData,
+            'data' => array_column($revenueData, 'total'),
+            'breakdown' => array_column($revenueData, 'breakdown'),
             'labels' => $labels
         ]);
     }
@@ -544,6 +575,35 @@ class DashboardController extends Controller
         }
 
         return $utilization;
+    }
+
+    private function getPaymentBreakdown($period)
+    {
+        $query = Bill::where('status', 'paid');
+        
+        if ($period === 'daily') {
+            $query->whereDate('paid_at', today());
+        } elseif ($period === 'monthly') {
+            $query->whereYear('paid_at', Carbon::now()->year)
+                ->whereMonth('paid_at', Carbon::now()->month);
+        } elseif ($period === 'yearly') {
+            $query->whereYear('paid_at', Carbon::now()->year);
+        }
+        
+        $breakdown = $query->selectRaw('payment_method, sum(total_amount) as total')
+            ->groupBy('payment_method')
+            ->pluck('total', 'payment_method')
+            ->toArray();
+            
+        // Ensure all payment methods exist
+        $paymentMethods = ['cash', 'card', 'upi', 'other'];
+        foreach ($paymentMethods as $method) {
+            if (!isset($breakdown[$method])) {
+                $breakdown[$method] = 0;
+            }
+        }
+        
+        return $breakdown;
     }
 }
 
