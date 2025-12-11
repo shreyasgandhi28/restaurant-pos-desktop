@@ -49,6 +49,8 @@ Route::middleware('auth')->group(function () {
     
     // Orders
     Route::resource('orders', OrderController::class);
+    Route::get('/orders/miscellaneous/create', [OrderController::class, 'createMiscellaneous'])->name('orders.create-miscellaneous');
+    Route::post('/orders/miscellaneous', [OrderController::class, 'storeMiscellaneous'])->name('orders.store-miscellaneous');
     Route::post('/order-items/{orderItem}/update-status', [OrderController::class, 'updateStatus'])->name('order-items.update-status');
     
     // Bills

@@ -14,6 +14,7 @@ class Order extends Model
         'user_id',
         'order_number',
         'status',
+        'type',
         'subtotal',
         'tax',
         'tax_rate',

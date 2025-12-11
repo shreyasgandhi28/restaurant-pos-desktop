@@ -24,7 +24,7 @@
 
 <!-- Bill Info -->
 <div class="bill-info" style="margin: 3px 0;">
-    <div>Table: {{ $bill->order->restaurantTable->table_number }}</div>
+    <div>Table: {{ $bill->order->restaurantTable ? $bill->order->restaurantTable->table_number : ($bill->order->type === 'miscellaneous' ? 'Misc' : '-') }}</div>
 </div>
 <div class="bill-info" style="margin: 3px 0;">
     <div>Bill No: {{ $bill->bill_number }}</div>
