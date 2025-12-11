@@ -167,7 +167,9 @@
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $order->order_number }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->bill ? $order->bill->bill_number : '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->restaurantTable->table_number }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $order->restaurantTable ? $order->restaurantTable->table_number : ($order->type === 'miscellaneous' ? 'Misc' : '-') }}
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($order->bill)
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium

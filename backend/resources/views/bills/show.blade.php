@@ -48,7 +48,7 @@
                 </div>
                 <div>
                     <p class="text-sm text-gray-600">Table</p>
-                    <p class="font-semibold">{{ $bill->order->restaurantTable->table_number }}</p>
+                    <p class="font-semibold">{{ $bill->order->restaurantTable ? $bill->order->restaurantTable->table_number : ($bill->order->type === 'miscellaneous' ? 'Misc' : '-') }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-600">Date</p>
@@ -56,7 +56,7 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Order Items -->
         <div class="p-6 border-b">
             <h3 class="text-lg font-semibold mb-4">Order Items</h3>
@@ -71,32 +71,51 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($bill->order->orderItems as $item)
-                        <tr class="border-b {{ $item->status === 'cancelled' ? 'bg-red-50' : '' }}">
-                            <td class="py-3">{{ $item->menuItem->name }}</td>
-                            <td class="text-center py-3">{{ $item->quantity }}</td>
-                            <td class="text-center py-3">
-                                @if($item->status === 'cancelled')
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        Cancelled
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        {{ ucfirst($item->status) }}
-                                    </span>
-                                @endif
+                    @if($bill->order->type === 'miscellaneous')
+                        <tr class="border-b">
+                            <td class="py-3">
+                                <span class="font-medium text-gray-900">{{ $bill->order->notes }}</span>
+                                <span class="text-xs text-gray-500 block">(Miscellaneous)</span>
                             </td>
-                            <td class="text-right py-3">₹{{ number_format($item->unit_price, 2) }}</td>
+                            <td class="text-center py-3">1</td>
+                            <td class="text-center py-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Served
+                                </span>
+                            </td>
+                            <td class="text-right py-3">₹{{ number_format($bill->order->total, 2) }}</td>
                             <td class="text-right py-3">
-                                @if($item->status === 'cancelled')
-                                    <span class="text-red-600 font-semibold">₹0.00</span>
-                                    <div class="text-xs text-red-600">(Cancelled)</div>
-                                @else
-                                    <span class="font-semibold">₹{{ number_format($item->total_price, 2) }}</span>
-                                @endif
+                                <span class="font-semibold">₹{{ number_format($bill->order->total, 2) }}</span>
                             </td>
                         </tr>
-                    @endforeach
+                    @else
+                        @foreach($bill->order->orderItems as $item)
+                            <tr class="border-b {{ $item->status === 'cancelled' ? 'bg-red-50' : '' }}">
+                                <td class="py-3">{{ $item->menuItem->name }}</td>
+                                <td class="text-center py-3">{{ $item->quantity }}</td>
+                                <td class="text-center py-3">
+                                    @if($item->status === 'cancelled')
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Cancelled
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            {{ ucfirst($item->status) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-right py-3">₹{{ number_format($item->unit_price, 2) }}</td>
+                                <td class="text-right py-3">
+                                    @if($item->status === 'cancelled')
+                                        <span class="text-red-600 font-semibold">₹0.00</span>
+                                        <div class="text-xs text-red-600">(Cancelled)</div>
+                                    @else
+                                        <span class="font-semibold">₹{{ number_format($item->total_price, 2) }}</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>

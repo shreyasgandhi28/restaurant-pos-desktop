@@ -10,12 +10,18 @@ use App\Models\Category;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Bill;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::with(['restaurantTable', 'user', 'bill']);
+        $query = Order::query()
+            ->select('orders.*')
+            ->leftJoin('bills', 'orders.id', '=', 'bills.order_id')
+            ->leftJoin('restaurant_tables', 'orders.restaurant_table_id', '=', 'restaurant_tables.id')
+            ->leftJoin('users', 'orders.user_id', '=', 'users.id')
+            ->with(['restaurantTable', 'user', 'bill']);
 
         // Apply filters
         if ($request->filled('search')) {
@@ -25,6 +31,9 @@ class OrderController extends Controller
                   ->orWhere('total', 'like', "%{$search}%")
                   ->orWhereHas('restaurantTable', function($tableQuery) use ($search) {
                       $tableQuery->where('table_number', 'like', "%{$search}%");
+                  })
+                  ->when(stripos('miscellaneous', $search) !== false || stripos('misc', $search) !== false, function($q) {
+                      $q->orWhere('type', 'miscellaneous');
                   })
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('name', 'like', "%{$search}%");
@@ -84,8 +93,17 @@ class OrderController extends Controller
         }
 
         if ($request->filled('table')) {
-            $query->whereHas('restaurantTable', function($q) use ($request) {
-                $q->where('table_number', 'like', "%{$request->table}%");
+            $tableSearch = $request->table;
+            $query->where(function ($q) use ($tableSearch) {
+                $q->whereHas('restaurantTable', function($subQ) use ($tableSearch) {
+                    $subQ->where('table_number', 'like', "%{$tableSearch}%");
+                });
+                
+                // If search term matches "misc", include miscellaneous orders
+                if (stripos('miscellaneous', $tableSearch) !== false || stripos('misc', $tableSearch) !== false) {
+                     $q->orWhereNull('restaurant_table_id')
+                       ->orWhere('type', 'miscellaneous');
+                }
             });
         }
 
@@ -95,7 +113,37 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->latest()->paginate(20)->appends($request->query());
+        // Date Filter
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        // Sorting
+        $sortColumn = $request->get('sort_by', 'created_at');
+        $sortDirection = $request->get('sort_order', 'desc');
+
+        $allowedSortColumns = [
+            'order_number' => 'orders.order_number',
+            'bill_number' => 'bills.bill_number',
+            'table' => 'restaurant_tables.table_number',
+            'server' => 'users.name',
+            'payment_status' => 'bills.status',
+            'amount_paid' => 'bills.amount_paid',
+            'created_at' => 'orders.created_at',
+            'total' => 'orders.total',
+        ];
+
+        if (array_key_exists($sortColumn, $allowedSortColumns)) {
+            $query->orderBy($allowedSortColumns[$sortColumn], $sortDirection);
+        } else {
+            $query->orderBy('orders.created_at', 'desc');
+        }
+
+        $orders = $query->paginate(20)->appends($request->query());
 
         return view('orders.index', compact('orders'));
     }
@@ -294,6 +342,72 @@ class OrderController extends Controller
                 'success' => false,
                 'message' => 'Failed to update order item status: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function createMiscellaneous()
+    {
+        return view('orders.create-miscellaneous');
+    }
+
+    public function storeMiscellaneous(Request $request)
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|in:cash,card,upi,other',
+            'reason' => 'required|string|max:255',
+            'custom_date' => 'nullable|date_format:Y-m-d\TH:i',
+        ]);
+
+        $customDate = $validated['custom_date'] ? \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $validated['custom_date']) : now();
+
+        DB::beginTransaction();
+        try {
+            // Create miscellaneous order
+            $order = Order::create([
+                'restaurant_table_id' => null,
+                'user_id' => auth()->id(),
+                'status' => 'served', // Immediately served/completed
+                'type' => 'miscellaneous',
+                'subtotal' => $validated['amount'], // No separate items, just total
+                'tax' => 0,
+                'tax_rate' => 0,
+                'service_charge' => 0,
+                'service_charge_rate' => 0,
+                'total' => $validated['amount'],
+                'notes' => $validated['reason'],
+                'order_number' => 'MISC-' . strtoupper(uniqid()),
+                'created_at' => $customDate,
+                'updated_at' => $customDate,
+            ]);
+
+            // Create connected bill
+            Bill::create([
+                'order_id' => $order->id,
+                'bill_number' => 'BILL-' . strtoupper(uniqid()),
+                'subtotal' => $validated['amount'],
+                'tax_amount' => 0,
+                'tax_percentage' => 0,
+                'service_charge' => 0,
+                'discount_amount' => 0,
+                'discount_percentage' => 0,
+                'total_amount' => $validated['amount'],
+                'amount_paid' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'status' => 'paid',
+                'paid_at' => $customDate,
+                'created_at' => $customDate,
+                'updated_at' => $customDate,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('orders.index')
+                ->with('success', 'Miscellaneous order added successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to add miscellaneous order: ' . $e->getMessage());
         }
     }
 }

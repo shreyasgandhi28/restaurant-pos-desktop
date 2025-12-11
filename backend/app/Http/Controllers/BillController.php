@@ -260,6 +260,19 @@ class BillController extends Controller
      */
     private function aggregateBillItems(Bill $bill)
     {
+        // For miscellaneous orders (no items), return a single manual item
+        if ($bill->order->type === 'miscellaneous') {
+            $item = new \stdClass();
+            $item->menuItem = new \stdClass();
+            $item->menuItem->name = $bill->order->notes ?? 'Miscellaneous';
+            $item->quantity = 1;
+            $item->unit_price = $bill->order->total;
+            $item->total_price = $bill->order->total;
+            $item->notes = '';
+            
+            return collect([$item]);
+        }
+
         return $bill->order->orderItems
             ->groupBy(function ($item) {
                 // Group by menu item ID, price, and notes to ensure identical items are merged
